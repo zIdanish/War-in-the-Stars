@@ -1,0 +1,74 @@
+{
+    "name": "__PlayerInput",
+    "maps": [
+        {
+            "name": "Gameplay",
+            "id": "ef9ad026-8659-44f3-9b68-41d181d92fa6",
+            "actions": [
+                {
+                    "name": "Delta",
+                    "type": "Value",
+                    "id": "bb9364b6-a2de-439d-9b53-9c984d2375a6",
+                    "expectedControlType": "Delta",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Click",
+                    "type": "Button",
+                    "id": "f0827939-8e63-42f2-9692-3d3518e0cb22",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "Press(behavior=2)",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Slow",
+                    "type": "Button",
+                    "id": "f7f74e35-dc2a-4237-87f9-83a57e8f806b",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "27b5713e-5db3-4632-9d25-ff5829617586",
+                    "path": "<Mouse>/delta",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Delta",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4a3c38b1-b248-4d99-87f5-1c65e95f5e41",
+                    "path": "<Keyboard>/shift",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Slow",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "5fad019d-8516-47cb-866e-b924919bab58",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Click",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}
