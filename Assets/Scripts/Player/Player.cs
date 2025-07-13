@@ -10,20 +10,20 @@ namespace Game
         /* Init Variables */
         private Cursor Cursor;
         private Entity Entity;
-        private void Awake()
+        private void Awake() // Setup objects and components
         {
             Cursor = GameObject.FindGameObjectWithTag("Cursor").GetComponent<Cursor>();
             Entity = this.GetComponent<Entity>();
         }
         private void Update()
         {
-            MoveEntity();
+            MoveEntity(); 
         }
 
         /* Player Input Controls */
         private void MoveEntity()
         {
-            if (Cursor.Clicked)
+            if (Cursor.Clicked) // Move entity by cursor delta if the player held click this frame
             {
                 Entity.MoveBy(Cursor.Delta);
             }
