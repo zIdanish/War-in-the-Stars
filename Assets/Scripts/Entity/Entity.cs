@@ -18,7 +18,6 @@ namespace Game
         [SerializeField] private float spd = 65;
         public float placeholder_elapsed = 0;
         public GameObject placeholder_projectile;
-        /*<-------------------------------------->*/
 
         // Init default stats
         Dictionary<string, float> Default = new Dictionary<string, float> { };
@@ -27,6 +26,7 @@ namespace Game
         private Transform projectile_folder;
         private Vector2 destination;
         private Vector2 position;
+        /*<-------------------------------------->*/
         private void Start()
         {
             projectile_folder = GameObject.FindGameObjectWithTag("Projectiles").transform;
@@ -35,9 +35,12 @@ namespace Game
             Default["HP"] = hp;
             Default["SPD"] = spd;
 
-            // set starting position
+            // set default position
             position = (Vector2)transform.position;
-            destination = position;
+            if (destination == null)
+            {
+                destination = position;
+            }
         }
         private void Update()
         {
@@ -50,6 +53,7 @@ namespace Game
         public float SPD { get { return spd; } }
         public Vector2 Position { get { return position; } }
         public Vector2 Destination { get { return destination; } }
+        public bool Moving { get { return (position - destination).magnitude>.1f; } }
 
         /* Movement Functions */
         public void MoveTo(Vector2 NewPosition) // Sets the entity's position to that Vector2
@@ -148,15 +152,10 @@ namespace Game
 
                 if (transform.tag == "Player")
                 {
-                    for (int i = -30; i <= 30; i += 30)
+                    for (int i = -30; i <= 30; i += 15)
                     {
                         Shoot(placeholder_projectile, 10, 75, i);
                     }
-                } else
-                {
-                    var player = getPlayer();
-                    if (player == null) { return; }
-                    Shoot(placeholder_projectile, 20, 10, player.Position);
                 }
             }
         }

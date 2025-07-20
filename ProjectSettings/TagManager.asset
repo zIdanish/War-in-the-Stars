@@ -6,8 +6,9 @@ TagManager:
   tags:
   - Cursor
   - Projectile
-  - Entity
   - Projectiles
+  - Enemy
+  - Entities
   layers:
   - Default
   - TransparentFX
