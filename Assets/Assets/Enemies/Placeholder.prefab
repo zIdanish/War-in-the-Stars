@@ -164,6 +164,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hp: 100
   spd: 7
+  dmg: 10
+  score: 50
   placeholder_elapsed: 0
   placeholder_projectile: {fileID: 1699499589198558219, guid: 7bc6ac80f69adac4c8a3bbfb90fd6560, type: 3}
 --- !u!114 &7444648252095229385
@@ -178,4 +180,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f29616d382bd5e49b983367436f7d86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Cooldown: 1
+  ProjectileSpeed: 10
+  Lifetime: 4
   projectile: {fileID: 1699499589198558219, guid: 7bc6ac80f69adac4c8a3bbfb90fd6560, type: 3}

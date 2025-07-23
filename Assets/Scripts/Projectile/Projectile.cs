@@ -1,4 +1,3 @@
-using Game;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -47,7 +46,7 @@ public class Projectile : MonoBehaviour
     private void OnHit(Entity entity)
     {
         // Deals damage to the entity and destroys this object
-        if (Caster == null) { return; };
+        if (entity.Invulnerable) { return; }
         entity.Damage(DMG, Caster);
 
         Destroy(this.gameObject);
@@ -84,7 +83,7 @@ public class Projectile : MonoBehaviour
     }
 
     /* Projectile Functions */
-    public void MoveTo(Vector2 destination)
+    public void MoveTo(Vector2 destination) // Moves the projectile in the direction of the destination
     {
         Vector2 diff = (destination - Position);
         diff.Normalize();

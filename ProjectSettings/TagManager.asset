@@ -9,6 +9,8 @@ TagManager:
   - Projectiles
   - Enemy
   - Entities
+  - UI
+  - Score
   layers:
   - Default
   - TransparentFX

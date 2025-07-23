@@ -2,31 +2,28 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace Game
+//# Player: Translating player inputs into Entity Functions
+public class PlayerInputs : MonoBehaviour
 {
-    //# Player: Translating player inputs into Entity Functions
-    public class PlayerInputs : MonoBehaviour
+    /* Init Variables */
+    private Cursor Cursor;
+    private Entity Entity;
+    private void Awake() // Setup objects and components
     {
-        /* Init Variables */
-        private Cursor Cursor;
-        private Entity Entity;
-        private void Awake() // Setup objects and components
-        {
-            Cursor = GameObject.FindGameObjectWithTag("Cursor").GetComponent<Cursor>();
-            Entity = this.GetComponent<Entity>();
-        }
-        private void Update()
-        {
-            MoveEntity(); 
-        }
+        Cursor = GameObject.FindGameObjectWithTag("Cursor").GetComponent<Cursor>();
+        Entity = this.GetComponent<Entity>();
+    }
+    private void Update()
+    {
+        MoveEntity();
+    }
 
-        /* Player Input Controls */
-        private void MoveEntity()
+    /* Player Input Controls */
+    private void MoveEntity()
+    {
+        if (Cursor.Clicked) // Move entity by cursor delta if the player held click this frame
         {
-            if (Cursor.Clicked) // Move entity by cursor delta if the player held click this frame
-            {
-                Entity.MoveBy(Cursor.Delta);
-            }
+            Entity.MoveBy(Cursor.Delta);
         }
     }
 }
