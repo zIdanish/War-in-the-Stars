@@ -74,8 +74,8 @@ public class Projectile : MonoBehaviour
 
         // Deletes object if object is past boundaries
         if (
-            Mathf.Abs(Position.x) > _settings.Boundaries.x * 1.05 ||
-            Mathf.Abs(Position.y) > _settings.Boundaries.y * 1.05
+            Mathf.Abs(Position.x) > _settings.Boundaries.x + transform.localScale.x ||
+            Mathf.Abs(Position.y) > _settings.Boundaries.y + transform.localScale.y
         )
         {
             Destroy(this.gameObject);

@@ -19,11 +19,8 @@ public class Entity : MonoBehaviour
     [SerializeField] private float inv = 0; // invulnerability window
     [SerializeField] private int score = 0;
 
-    // placeholder projectiles
-    public float placeholder_elapsed = 0;
-    public GameObject placeholder_projectile = null!;
-
     // Init default stats
+    Dictionary<string, Ability> Abilities = new Dictionary<string, Ability> { };
     Dictionary<string, float> Default = new Dictionary<string, float> { };
     private float invulnerable = 0; // 0 means vulnerable, anything above is invulnerable (in seconds)
 
@@ -51,7 +48,6 @@ public class Entity : MonoBehaviour
     }
     private void Update()
     {
-        placeholderShoot();
         UpdatePosition();
         RefreshStats();
     }
@@ -183,24 +179,5 @@ public class Entity : MonoBehaviour
 
         Projectile Component = Shoot(projectile, dmg, spd, destination);
         return Component;
-    }
-
-    /* Placeholder Functions */
-    public void placeholderShoot()
-    {
-        float cooldown = transform.tag == "Player" ? 0.1f : 0.5f;
-        placeholder_elapsed += Time.deltaTime;
-        if (placeholder_elapsed > cooldown)
-        {
-            placeholder_elapsed -= cooldown;
-
-            if (transform.tag == "Player")
-            {
-                for (int i = -30; i <= 30; i += 15)
-                {
-                    Shoot(placeholder_projectile, dmg, 75, i);
-                }
-            }
-        }
     }
 }

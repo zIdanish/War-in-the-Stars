@@ -18,19 +18,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7273603376073009058, guid: 741b12b32267fac42a0690fab474c619, type: 3}
       propertyPath: m_Name
-      value: Circle_Player
+      value: Circle_Player_Big
       objectReference: {fileID: 0}
     - target: {fileID: 8822635086208531137, guid: 741b12b32267fac42a0690fab474c619, type: 3}
       propertyPath: m_LocalScale.x
-      value: 9
+      value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 8822635086208531137, guid: 741b12b32267fac42a0690fab474c619, type: 3}
       propertyPath: m_LocalScale.y
-      value: 9
+      value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 8822635086208531137, guid: 741b12b32267fac42a0690fab474c619, type: 3}
       propertyPath: m_LocalScale.z
-      value: 9
+      value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 8822635086208531137, guid: 741b12b32267fac42a0690fab474c619, type: 3}
       propertyPath: m_LocalPosition.x

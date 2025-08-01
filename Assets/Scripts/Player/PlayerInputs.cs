@@ -5,13 +5,23 @@ using UnityEngine.InputSystem;
 //# Player: Translating player inputs into Entity Functions
 public class PlayerInputs : MonoBehaviour
 {
+    [SerializeField] public InputAction Ability1;
+
     /* Init Variables */
     private Cursor Cursor;
     private Entity Entity;
     private void Awake() // Setup objects and components
     {
         Cursor = GameObject.FindGameObjectWithTag("Cursor").GetComponent<Cursor>();
-        Entity = this.GetComponent<Entity>();
+        Entity = gameObject.GetComponent<Entity>();
+    }
+    private void OnEnable()
+    {
+        Ability1.Enable(); // Enable inputs when this component is disabled
+    }
+    private void OnDisable()
+    {
+        Ability1.Disable(); // Disable inputs when this component is disabled
     }
     private void Update()
     {
