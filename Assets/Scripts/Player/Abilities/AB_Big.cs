@@ -16,15 +16,16 @@ public class AB_Big : Ability
     {
         while (true)
         {
-            yield return StartCoroutine(AbilityPressed(input.Ability1));
+            yield return StartCoroutine(AbilityPressed());
 
             Attack();
 
-            yield return AbilityCooldown(Cooldown, ability1);
+            yield return AbilityCooldown(Cooldown);
         }
     }
     private void Attack()
     {
-        entity.Shoot(Projectile, entity.DMG * DamageMultiplier, ProjectileSpeed, 0);
+        var bullet = (PJ_Damage)entity.Shoot(Projectile, ProjectileSpeed, 0);
+        bullet.DMG = entity.DMG * DamageMultiplier;
     }
 }

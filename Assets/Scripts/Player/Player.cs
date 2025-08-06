@@ -3,10 +3,8 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 //# Player: Translating player inputs into Entity Functions
-public class PlayerInputs : MonoBehaviour
+public class Player : MonoBehaviour
 {
-    [SerializeField] public InputAction Ability1;
-
     /* Init Variables */
     private Cursor Cursor;
     private Entity Entity;
@@ -14,14 +12,10 @@ public class PlayerInputs : MonoBehaviour
     {
         Cursor = GameObject.FindGameObjectWithTag("Cursor").GetComponent<Cursor>();
         Entity = gameObject.GetComponent<Entity>();
-    }
-    private void OnEnable()
-    {
-        Ability1.Enable(); // Enable inputs when this component is disabled
-    }
-    private void OnDisable()
-    {
-        Ability1.Disable(); // Disable inputs when this component is disabled
+        Entity.IsPlayer = true;
+
+        // init cursor follow
+        Cursor.follow = transform;
     }
     private void Update()
     {
@@ -33,7 +27,7 @@ public class PlayerInputs : MonoBehaviour
     {
         if (Cursor.Clicked) // Move entity by cursor delta if the player held click this frame
         {
-            Entity.MoveBy(Cursor.Delta);
+            Entity.MoveTo(Cursor.Position);
         }
     }
 }

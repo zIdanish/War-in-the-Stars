@@ -4,19 +4,24 @@ using UnityEngine;
 
 public class Level_Test : GameManager
 {
+    /*<-------------------Enemies------------------>*/
+    public GameObject Goon1;
+    /*<-----------------Projectiles---------------->*/
+    public GameObject HealOrb;
+
     /* Init Variables */
-    public GameObject Enemy_Placeholder;
     public void Start()
     {
         Init();
-        StartCoroutine(Timeline());
     }
 
     /* Timeline */
-    public IEnumerator Timeline()
+    protected override IEnumerator Timeline()
     {
-        SpawnEnemy(Enemy_Placeholder, new Vector2(0,70), new Vector2(0,50));
+        yield return new WaitForSeconds(1f);
 
-        yield return null;
+        SpawnEnemy(Goon1, new Vector2(0, bounds.y+20), new Vector2(0, bounds.y-10));
+
+        yield return new WaitForSeconds(2f);
     }
 }

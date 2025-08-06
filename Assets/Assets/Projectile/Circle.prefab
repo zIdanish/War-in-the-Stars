@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8822635086208531137}
   - component: {fileID: 3781742406984750964}
   - component: {fileID: 4039097753517894323}
-  - component: {fileID: -3543066432660399452}
+  - component: {fileID: -6243666760674080165}
   m_Layer: 0
   m_Name: Circle
   m_TagString: Projectile
@@ -121,7 +121,7 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 0.5
---- !u!114 &-3543066432660399452
+--- !u!114 &-6243666760674080165
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -130,6 +130,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 7273603376073009058}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f3cc77b0dc634ae49a14ea1c6d4f7416, type: 3}
+  m_Script: {fileID: 11500000, guid: aba0e784dd86e334aa9b223bc9c67ef9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

@@ -24,7 +24,8 @@ public class AB_Default : Ability
     {
         for (int angle = -30; angle <= 30; angle += 15)
         {
-            entity.Shoot(Projectile, entity.DMG * DamageMultiplier, ProjectileSpeed, angle);
+            var bullet = (PJ_Damage)entity.Shoot(Projectile, ProjectileSpeed, angle);
+            bullet.DMG = entity.DMG * DamageMultiplier;
         }
     }
 }

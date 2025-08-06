@@ -10,27 +10,32 @@ public class Projectile : MonoBehaviour
     /* Init Variables */
 
     /*<----------------Stats---------------->*/
-    [NonSerialized] public float DMG = 10;
     [NonSerialized] public float SPD = 15;
     public float? LIFE; // How long this projectile lasts for
     [NonSerialized] public string? TARGET; // Target entity tag (Player/Enemy)
     /*<---------------Movement-------------->*/
     [NonSerialized] public Vector2 Position;
     [NonSerialized] public Entity? Caster;
-    [NonSerialized] public Vector2 Direction;
+    public Vector2 Direction { get; private set; }
     /*<------------------------------------->*/
-    private float elapsed = 0;
-    private void Start()
+    protected float elapsed = 0;
+    protected virtual void Start()
     {
         transform.position = Position;
     }
-    private void Update()
+    protected virtual void Update()
     {
         elapsed += Time.deltaTime;
 
         CheckLife();
         UpdatePosition();
     }
+    /* Class Functions */
+    protected virtual void OnHit(Entity entity)
+    {
+        Debug.Log($"Hit entity: {entity}");
+    }
+
     /* Collision Functions */
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -42,14 +47,6 @@ public class Projectile : MonoBehaviour
         if (entity == null ) { return; };
 
         OnHit(entity);
-    }
-    private void OnHit(Entity entity)
-    {
-        // Deals damage to the entity and destroys this object
-        if (entity.Invulnerable) { return; }
-        entity.Damage(DMG, Caster);
-
-        Destroy(this.gameObject);
     }
 
     /* Update Functions */
@@ -63,7 +60,6 @@ public class Projectile : MonoBehaviour
         // Set the object position to the new position
         transform.position = Position;
     }
-
     private void CheckLife()
     {
         // Checks if the object has elapsed past its lifetime, deletes if true
@@ -74,8 +70,8 @@ public class Projectile : MonoBehaviour
 
         // Deletes object if object is past boundaries
         if (
-            Mathf.Abs(Position.x) > _settings.Boundaries.x + transform.localScale.x ||
-            Mathf.Abs(Position.y) > _settings.Boundaries.y + transform.localScale.y
+            Mathf.Abs(Position.x) > _settings.Screen.x + transform.localScale.x ||
+            Mathf.Abs(Position.y) > _settings.Screen.y + transform.localScale.y
         )
         {
             Destroy(this.gameObject);
@@ -88,5 +84,9 @@ public class Projectile : MonoBehaviour
         Vector2 diff = (destination - Position);
         diff.Normalize();
         Direction = diff;
+
+        // set projectile direction
+        float angle = Mathf.Atan2(Direction.y, Direction.x) * Mathf.Rad2Deg;
+        transform.rotation = Quaternion.Euler(0, 0, angle);
     }
 }

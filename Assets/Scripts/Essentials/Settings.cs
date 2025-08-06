@@ -10,6 +10,7 @@ public class _settings : MonoBehaviour
     public static float BoundaryShear = 5.0f; // cursor offset from the boundaries
         
     /* Automatic Variables */
+    public static Vector2 Screen { get { float y = Camera.main.orthographicSize; return new Vector2(y/9*16, y); } }
     public static Vector2 Boundaries { get { float size = Camera.main.orthographicSize - BoundaryShear; return new Vector2(size, size); } }
 
     /* Debug */

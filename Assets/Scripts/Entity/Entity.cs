@@ -5,6 +5,7 @@ using System.Drawing;
 using Unity.VisualScripting;
 using UnityEngine;
 using static UnityEngine.EventSystems.EventTrigger;
+using Color = UnityEngine.Color;
 #nullable enable
 
 //# Entity: Entity behaviour (Stats Management, Movement, Projectile Creation etc. etc.)
@@ -20,20 +21,22 @@ public class Entity : MonoBehaviour
     [SerializeField] private int score = 0;
 
     // Init default stats
-    Dictionary<string, Ability> Abilities = new Dictionary<string, Ability> { };
-    Dictionary<string, float> Default = new Dictionary<string, float> { };
+    public bool IsPlayer = false;
+    private Dictionary<string, float> Default = new Dictionary<string, float> { };
     private float invulnerable = 0; // 0 means vulnerable, anything above is invulnerable (in seconds)
 
     // Entity Vector2 info, destination is the target position the entity is moving towards.
     private Transform projectile_folder = null!;
+    private SpriteRenderer sprite = null!;
     private Vector2 destination;
     private Vector2 position;
     /*<-------------------------------------->*/
     private GameManager Game = null!;
-    private void Start()
+    private void Awake()
     {
         Game = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameManager>();
         projectile_folder = GameObject.FindGameObjectWithTag("Projectiles").transform;
+        sprite = GetComponent<SpriteRenderer>();
 
         // set default stats
         Default["HP"] = hp;
@@ -50,6 +53,7 @@ public class Entity : MonoBehaviour
     {
         UpdatePosition();
         RefreshStats();
+        InvulnerableSprite();
     }
 
     /* Public Variables */
@@ -81,6 +85,12 @@ public class Entity : MonoBehaviour
             invulnerable = MathF.Max(invulnerable - Time.deltaTime, 0);
         }
     }
+    private void InvulnerableSprite()
+    {
+        if (inv <= 0) { return; }
+        var c = sprite.color;
+        sprite.color = new Color(c.r, c.g, c.b, MathF.Abs(.025f - (invulnerable%.05f)) * 40 );
+    }
 
     /* Movement Functions */
     public void MoveTo(Vector2 NewPosition) // Sets the entity's position to that Vector2 within the boundaries
@@ -107,6 +117,11 @@ public class Entity : MonoBehaviour
     {
         destination = NewPosition;
     }
+    
+    public void SetPosition(Vector2 NewPosition) // Sets the entity's position to that Vector2 without taking into account SPD
+    {
+        position = NewPosition;
+    }
 
     /* Entity Functions */
     public void Die(Entity? Caster) // Called when the entity is dead
@@ -127,9 +142,26 @@ public class Entity : MonoBehaviour
         }
 
         hp = Mathf.Clamp(hp - dmg, 0, Default["HP"]);
+
+        if (IsPlayer)
+        {
+            Game.DisplayHP(hp, Default["HP"]);
+        }
+
         if (hp <= 0)
         {
             Die(Caster);
+        }
+    }
+    public void Heal(float heal, Entity? Caster) // Called when the entity is damaged by another
+    {
+        if (hp <= 0) { return; } // Return if the entity is dead
+
+        hp = Mathf.Clamp(hp + heal, 0, Default["HP"]);
+
+        if (IsPlayer)
+        {
+            Game.DisplayHP(hp, Default["HP"]);
         }
     }
     public Entity? getPlayer() // Gets the player entity in game
@@ -139,45 +171,26 @@ public class Entity : MonoBehaviour
 
         return player.GetComponent<Entity>();
     }
-    public Projectile Shoot(GameObject projectile, float dmg, float spd, float angle) // Creates a projectile that moves at an angle
+    public Projectile Shoot(GameObject projectile, float spd, float angle) // Creates a projectile that moves at an angle
     {
-        float radians = (angle + transform.eulerAngles.z) * Mathf.Deg2Rad;
-        Vector2 destination = position + new Vector2( // Calculate the destination vector (goes offscreen)
-            Mathf.Sin(radians),
-            Mathf.Cos(radians)
-        );
-
-        Projectile Component = Shoot(projectile, dmg, spd, destination);
-        return Component;
-    }
-    public Projectile Shoot(GameObject projectile, float dmg, float spd, Vector2 destination) // Creates a projectile that moves towards Vector2 direction
-    {
-        GameObject Projectile = Instantiate(projectile);
-        Projectile Component = Projectile.GetComponent<Projectile>();
-        Component.TARGET = transform.tag == "Player" ? "Enemy" : "Player";
-        Component.DMG = dmg;
-        Component.SPD = spd;
+        angle += transform.eulerAngles.z;
+        string target = transform.tag == "Player" ? "Enemy" : "Player";
+        Projectile Component = Game.Shoot(projectile, position, target, spd, angle);
         Component.Caster = this;
-        Component.Position = position;
-        Component.MoveTo(destination);
-        Projectile.transform.parent = projectile_folder;
         return Component;
     }
-    public Projectile Shoot(GameObject projectile, float dmg, float spd, Vector2 destination, float angle) // Creates a projectile that moves towards Vector2 direction in an angle
+    public Projectile Shoot(GameObject projectile, float spd, Vector2 destination) // Creates a projectile that moves towards Vector2 direction
     {
-        float radians = angle * Mathf.Deg2Rad;
-        float cos = Mathf.Cos(radians);
-        float sin = Mathf.Sin(radians);
-
-        Vector2 dif = destination - position;
-        Vector2 direction = new Vector2( // calculate the new direction of the vector
-            dif.x * cos - dif.y * sin,
-            dif.x * sin + dif.y * cos
-        );
-
-        destination = position + direction; // set the new destination
-
-        Projectile Component = Shoot(projectile, dmg, spd, destination);
+        string target = transform.tag == "Player" ? "Enemy" : "Player";
+        Projectile Component = Game.Shoot(projectile, position, target, spd, destination);
+        Component.Caster = this;
+        return Component;
+    }
+    public Projectile Shoot(GameObject projectile, float spd, Vector2 destination, float angle) // Creates a projectile that moves towards Vector2 direction in an angle
+    {
+        string target = transform.tag == "Player" ? "Enemy" : "Player";
+        Projectile Component = Game.Shoot(projectile, position, target, spd, destination, angle);
+        Component.Caster = this;
         return Component;
     }
 }
