@@ -17,6 +17,7 @@ public class Projectile : MonoBehaviour
     [NonSerialized] public Vector2 Position;
     [NonSerialized] public Entity? Caster;
     public Vector2 Direction { get; private set; }
+    private float? DONT_DELETE = 0;
     /*<------------------------------------->*/
     protected float elapsed = 0;
     protected virtual void Start()
@@ -69,12 +70,24 @@ public class Projectile : MonoBehaviour
         }
 
         // Deletes object if object is past boundaries
+        // Only triggers when the object is within boundaries at least once
+        // If not, just wait 2 seconds
         if (
             Mathf.Abs(Position.x) > _settings.Screen.x + transform.localScale.x ||
             Mathf.Abs(Position.y) > _settings.Screen.y + transform.localScale.y
         )
         {
-            Destroy(this.gameObject);
+            if (DONT_DELETE != null && DONT_DELETE < 2)
+            {
+                // Timeout for 2.0s
+                DONT_DELETE += Time.deltaTime;
+            } else
+            {
+                Destroy(this.gameObject);
+            }
+        } else
+        {
+            DONT_DELETE = null;
         }
     }
 

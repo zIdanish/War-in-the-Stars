@@ -6,10 +6,17 @@ using UnityEngine.InputSystem;
 public class Player : MonoBehaviour
 {
     /* Init Variables */
+    private GameManager Game;
+    private InputAction Pause = new InputAction();
     private Cursor Cursor;
     private Entity Entity;
     private void Awake() // Setup objects and components
     {
+        Game = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameManager>();
+
+        Pause.AddBinding("<Keyboard>/escape");
+        Pause.performed += ctx => Game.Pause();
+
         Cursor = GameObject.FindGameObjectWithTag("Cursor").GetComponent<Cursor>();
         Entity = gameObject.GetComponent<Entity>();
         Entity.IsPlayer = true;
@@ -17,6 +24,16 @@ public class Player : MonoBehaviour
         // init cursor follow
         Cursor.follow = transform;
     }
+
+    private void OnEnable()
+    {
+        Pause.Enable();
+    }
+    private void OnDisable()
+    {
+        Pause.Disable();
+    }
+
     private void Update()
     {
         MoveEntity();

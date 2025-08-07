@@ -13,9 +13,8 @@ GameObject:
   - component: {fileID: 3572761757730763048}
   - component: {fileID: 4939187352455726052}
   - component: {fileID: 8125693464603410726}
-  - component: {fileID: 7444648252095229385}
   m_Layer: 0
-  m_Name: Placeholder
+  m_Name: Template
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -165,22 +164,6 @@ MonoBehaviour:
   hp: 100
   spd: 7
   dmg: 10
+  inv: 0
   score: 50
-  placeholder_elapsed: 0
-  placeholder_projectile: {fileID: 1699499589198558219, guid: 7bc6ac80f69adac4c8a3bbfb90fd6560, type: 3}
---- !u!114 &7444648252095229385
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9036611122958503002}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0f29616d382bd5e49b983367436f7d86, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Cooldown: 1
-  ProjectileSpeed: 10
-  Lifetime: 4
-  projectile: {fileID: 1699499589198558219, guid: 7bc6ac80f69adac4c8a3bbfb90fd6560, type: 3}
+  IsPlayer: 0

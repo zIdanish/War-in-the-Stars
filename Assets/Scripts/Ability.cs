@@ -13,9 +13,9 @@ using Image = UnityEngine.UI.Image;
 public class Ability : MonoBehaviour
 {
     public Transform? icon;
-    public InputAction? input;
     protected Image? background;
     protected TextMeshProUGUI? text;
+    public InputAction input = new InputAction();
     protected Entity entity = null!;
     protected Coroutine timeline = null!;
     private void OnEnable()

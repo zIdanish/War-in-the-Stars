@@ -5,11 +5,11 @@ using UnityEngine;
 public class AB_Big : Ability
 {
     /*<-----------------Stats---------------->*/
-    [SerializeField] private float Cooldown = 2f;
+    public float Cooldown = 0f;
     /*<-------------------------------------->*/
-    [SerializeField] private float DamageMultiplier = 2f;
-    [SerializeField] private float ProjectileSpeed = 25;
-    [SerializeField] private GameObject Projectile;
+    public float DamageMultiplier = 5000f;
+    public float ProjectileSpeed = 25;
+    public GameObject Projectile;
     /*<-------------------------------------->*/
     private void Start()    {        Init();    }
     public override IEnumerator Timeline()

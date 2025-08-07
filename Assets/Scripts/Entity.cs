@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using static UnityEngine.EventSystems.EventTrigger;
 using Color = UnityEngine.Color;
 #nullable enable
@@ -26,7 +27,6 @@ public class Entity : MonoBehaviour
     private float invulnerable = 0; // 0 means vulnerable, anything above is invulnerable (in seconds)
 
     // Entity Vector2 info, destination is the target position the entity is moving towards.
-    private Transform projectile_folder = null!;
     private SpriteRenderer sprite = null!;
     private Vector2 destination;
     private Vector2 position;
@@ -35,7 +35,6 @@ public class Entity : MonoBehaviour
     private void Awake()
     {
         Game = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameManager>();
-        projectile_folder = GameObject.FindGameObjectWithTag("Projectiles").transform;
         sprite = GetComponent<SpriteRenderer>();
 
         // set default stats
@@ -124,6 +123,22 @@ public class Entity : MonoBehaviour
     }
 
     /* Entity Functions */
+
+    // Player functions
+    public Ability AddAbility(string component)
+    {
+        var type = Type.GetType(component);
+        Ability ability = (Ability)gameObject.AddComponent(type);
+        return ability;
+    }
+    public Ability AddAbility(string component, string keybind)
+    {
+        Ability ability = AddAbility(component);
+        ability.input.AddBinding($"<Keyboard>/{keybind.ToLower()}");
+        return ability;
+    }
+
+    // Stat functions
     public void Die(Entity? Caster) // Called when the entity is dead
     {
         if (Caster != null && Caster.tag == "Player") // Add score when the entity is killed by player
@@ -132,15 +147,16 @@ public class Entity : MonoBehaviour
         }
         Destroy(gameObject);
     }
-    public void Damage(float dmg, Entity? Caster) // Called when the entity is damaged by another
+    public float Damage(float dmg, Entity? Caster) // Called when the entity is damaged by another, returns excess
     {
-        if (invulnerable > 0) { return; } // Return if the entity is invulnerable
+        if (invulnerable > 0) { return 0; } // Return if the entity is invulnerable
 
         if (inv > 0) // Entity becomes invulnerable when taking damage (if inv stat is above 0)
         {
             invulnerable = inv;
         }
 
+        float lastHP = hp;
         hp = Mathf.Clamp(hp - dmg, 0, Default["HP"]);
 
         if (IsPlayer)
@@ -152,6 +168,8 @@ public class Entity : MonoBehaviour
         {
             Die(Caster);
         }
+
+        return Mathf.Clamp(dmg - lastHP + hp, 0, dmg);
     }
     public void Heal(float heal, Entity? Caster) // Called when the entity is damaged by another
     {
@@ -164,13 +182,8 @@ public class Entity : MonoBehaviour
             Game.DisplayHP(hp, Default["HP"]);
         }
     }
-    public Entity? getPlayer() // Gets the player entity in game
-    {
-        GameObject player = GameObject.FindGameObjectWithTag("Player");
-        if (player == null) { return null; }
 
-        return player.GetComponent<Entity>();
-    }
+    // Shoot Functions
     public Projectile Shoot(GameObject projectile, float spd, float angle) // Creates a projectile that moves at an angle
     {
         angle += transform.eulerAngles.z;
@@ -192,5 +205,14 @@ public class Entity : MonoBehaviour
         Projectile Component = Game.Shoot(projectile, position, target, spd, destination, angle);
         Component.Caster = this;
         return Component;
+    }
+
+    // Entity static functions
+    public static Entity? getPlayer() // Gets the player entity in game
+    {
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        if (player == null) { return null; }
+
+        return player.GetComponent<Entity>();
     }
 }

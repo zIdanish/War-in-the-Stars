@@ -78,7 +78,7 @@ public class AI_Placeholder : MonoBehaviour
 
             /*<-------------------------------------->*/
             // Shoot at the player
-            var player = entity.getPlayer();
+            var player = Entity.getPlayer();
             if (player == null) { yield break; }
 
             var bullet = (PJ_Damage)entity.Shoot(projectile, ProjectileSpeed, player.Position);

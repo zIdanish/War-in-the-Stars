@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -6,25 +7,36 @@ using UnityEngine;
 using UnityEngine.InputSystem.HID;
 using UnityEngine.UIElements;
 using Image = UnityEngine.UI.Image;
+#nullable enable
 
 public class GameManager : MonoBehaviour
 {
     /* Init Variables */
     /*<-----------------Game Variables---------------->*/
-    protected int score = 0;
+    public bool Ended { get; private set; } = false;
+    public bool Paused { get; private set; } = false;
+    public int EntityCount { get { return Entities.childCount; } }
+    public int EntityLimit = 50;
+    [NonSerialized] public Entity player = null!;
+    public int score { get; protected set; } = 0;
     protected Vector2 bounds = new Vector2();
     /*<----------------------------------------------->*/
-    private Transform UI;
-    private TextMeshProUGUI ScoreUI;
-    private Transform Health;
-    private Image HealthBar;
-    private TextMeshProUGUI HealthDisplay;
-    private GameObject Entities;
-    private Transform projectile_folder;
+    protected Transform UI = null!;
+    private TextMeshProUGUI ScoreUI = null!;
+    private Transform Health = null!;
+    private Image HealthBar = null!;
+    private TextMeshProUGUI HealthDisplay = null!;
+    private Transform Entities = null!;
+    private Transform Projectiles = null!;
 
     private void Awake() // Hide windows cursor when the game is loaded
     {
         HideCursor();
+
+        // Get Player
+        Entity? getPlayer = Entity.getPlayer();
+        if (getPlayer == null) { Debug.Log("No player found!"); return; }
+        player = getPlayer.GetComponent<Entity>();
     }
 
     /* Public Variables */
@@ -33,19 +45,31 @@ public class GameManager : MonoBehaviour
     /* Init Functions */
     protected virtual void Init()
     {
-        Entities = GameObject.FindGameObjectWithTag("Entities");
+        Entities = GameObject.FindGameObjectWithTag("Entities").transform;
         UI = GameObject.FindGameObjectWithTag("UI").transform;
         ScoreUI = UI.Find("Score").GetComponent<TextMeshProUGUI>();
-        projectile_folder = GameObject.FindGameObjectWithTag("Projectiles").transform;
+        Projectiles = GameObject.FindGameObjectWithTag("Projectiles").transform;
         bounds = _settings.Boundaries;
 
         Health = UI.Find("Health");
         HealthBar = Health.Find("Bar").GetComponent<Image>();
         HealthDisplay = Health.Find("Display").GetComponent<TextMeshProUGUI>();
 
+        PlayerAbilities();
         StartCoroutine(Timeline());
     }
+    protected virtual void PlayerAbilities()
+    {
+        Debug.Log("No Player Abilities?!?");
+    }
     protected virtual IEnumerator Timeline()
+    {
+        while (true)
+        {
+            yield return StartCoroutine(NewWave());
+        }
+    }
+    protected virtual IEnumerator NewWave()
     {
         yield return null;
     }
@@ -56,6 +80,18 @@ public class GameManager : MonoBehaviour
     }
 
     /* Game Functions */
+
+    // Game behaviour
+    public void Pause()
+    {
+        Paused = !Paused;
+        Time.timeScale = Paused ? 0f : 1f;
+    }
+    public void Pause(bool paused)
+    {
+        Paused = paused;
+        Time.timeScale = Paused ? 0f : 1f;
+    }
 
     // Increases the score
     public void AddScore(int _score)
@@ -69,7 +105,9 @@ public class GameManager : MonoBehaviour
     public void DisplayHP(float hp, float maxHP)
     {
         RectTransform hpbar = HealthBar.rectTransform;
-        RectTransform frame = hpbar.parent as RectTransform;
+        RectTransform? frame = hpbar.parent as RectTransform;
+        if (frame == null) { Debug.Log("HP Frame not found!"); return; }
+
         float width = frame.rect.width * (1 - (hp / maxHP));
 
         int display = (int)hp;
@@ -79,13 +117,24 @@ public class GameManager : MonoBehaviour
     }
 
     // Spawns an enemy at the position, and moves towards target position
-    public Entity SpawnEnemy(GameObject enemy, Vector2 position, Vector2 targetPosition)
+    public Entity? SpawnEnemy(GameObject enemy, Vector2 position, Vector2 targetPosition)
     {
+        if (EntityCount > EntityLimit) { return null; }
         GameObject Enemy = Instantiate(enemy);
+        Enemy.transform.position = position;
         Entity Component = Enemy.GetComponent<Entity>();
         Component.SetPosition(position);
         Component.MoveTo(targetPosition);
-        Enemy.transform.SetParent(Entities.transform);
+        Enemy.transform.SetParent(Entities);
+        return Component;
+    }
+    public Entity? SpawnEnemy(GameObject enemy, Vector2 position, Vector2 targetPosition, Action<Entity> action)
+    {
+        Entity? Component = SpawnEnemy(enemy, position, targetPosition);
+        if (Component != null) {
+            action(Component);
+        }
+
         return Component;
     }
 
@@ -109,7 +158,7 @@ public class GameManager : MonoBehaviour
         Component.SPD = spd;
         Component.Position = position;
         Component.MoveTo(destination);
-        Projectile.transform.parent = projectile_folder;
+        Projectile.transform.parent = Projectiles;
         return Component;
     }
     public Projectile Shoot(GameObject projectile, Vector2 position, string target, float spd, Vector2 destination, float angle) // Creates a projectile that moves towards Vector2 direction in an angle

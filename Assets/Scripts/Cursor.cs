@@ -9,6 +9,7 @@ public class Cursor : MonoBehaviour
 {
     /* Init Variables */
 
+    private GameManager Game = null!;
     public Transform? follow;
 
     // InputAction objects to detect player input for movement, clicking and shifting
@@ -19,20 +20,27 @@ public class Cursor : MonoBehaviour
     // Variables for cursor position and delta
     private Vector2 position = new Vector2(0, 0);
     private Vector2 delta = new Vector2(0, 0);
+    private bool bounded = false;
 
     private void OnEnable()
     {
         Move.Enable(); Click.Enable(); Shift.Enable(); // Enable inputs when this component is disabled
         Click.performed += OnClick;
+        Click.canceled += OnRelease;
     }
     private void OnDisable()
     {
         Move.Disable(); Click.Disable(); Shift.Disable(); // Disable inputs when this component is disabled
         Click.performed -= OnClick;
+        Click.canceled += OnRelease;
     }
     private void Update()
     {
         MoveCursor();
+    }
+    private void Start()
+    {
+        Game = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameManager>();
     }
 
     /* Public Variables */
@@ -46,7 +54,7 @@ public class Cursor : MonoBehaviour
     public void MoveCursor()
     {
         delta = Move.ReadValue<Vector2>() * _settings.Sensitivity / (Shifted ? 16 : 8); // Gets the cursor delta translated into unity Vector2
-        var Boundaries = Clicked ? _settings.Boundaries : _settings.Screen;
+        var Boundaries = bounded ? _settings.Boundaries : _settings.Screen;
 
         if (delta.x != 0 || delta.y != 0) // Check if the mouse moved
         {
@@ -65,8 +73,20 @@ public class Cursor : MonoBehaviour
     /* Private Functions */
     private void OnClick(InputAction.CallbackContext context)
     {
-        if ( follow == null ) { return; }
+        if ( 
+            follow == null || 
+            Game.Paused || 
+            MathF.Abs(position.x) > _settings.Boundaries.x || 
+            MathF.Abs(position.y) > _settings.Boundaries.y) 
+        {
+            return; 
+        }
         position = (Vector2) follow.position;
         transform.position = position;
+        bounded = true;
+    }
+    private void OnRelease(InputAction.CallbackContext context)
+    {
+        bounded = false;
     }
 }
