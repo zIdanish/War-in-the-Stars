@@ -5,9 +5,9 @@ using UnityEngine;
 public class AB_Big : Ability
 {
     /*<-----------------Stats---------------->*/
-    public float Cooldown = 0f;
+    public float Cooldown = 2f;
     /*<-------------------------------------->*/
-    public float DamageMultiplier = 5000f;
+    public float DamageMultiplier = 10;
     public float ProjectileSpeed = 25;
     public GameObject Projectile;
     /*<-------------------------------------->*/
@@ -26,6 +26,7 @@ public class AB_Big : Ability
     private void Attack()
     {
         var bullet = (PJ_Damage)entity.Shoot(Projectile, ProjectileSpeed, 0);
+        bullet.transform.localScale *= 2;
         bullet.DMG = entity.DMG * DamageMultiplier;
     }
 }

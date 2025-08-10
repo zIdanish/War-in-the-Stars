@@ -14,7 +14,7 @@ public class Projectile : MonoBehaviour
     public float? LIFE; // How long this projectile lasts for
     [NonSerialized] public string? TARGET; // Target entity tag (Player/Enemy)
     /*<---------------Movement-------------->*/
-    [NonSerialized] public Vector2 Position;
+    public Vector2 Position { get; private set; }
     [NonSerialized] public Entity? Caster;
     public Vector2 Direction { get; private set; }
     private float? DONT_DELETE = 0;
@@ -45,7 +45,7 @@ public class Projectile : MonoBehaviour
 
         // Check if the collision has an entity component
         Entity? entity = collision.gameObject.GetComponent<Entity>();
-        if (entity == null ) { return; };
+        if (entity == null ) { return; }
 
         OnHit(entity);
     }
@@ -99,7 +99,13 @@ public class Projectile : MonoBehaviour
         Direction = diff;
 
         // set projectile direction
-        float angle = Mathf.Atan2(Direction.y, Direction.x) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.Euler(0, 0, angle);
+        float angle = (Mathf.Atan2(Direction.y, Direction.x)) * Mathf.Rad2Deg;
+        transform.rotation = Quaternion.Euler(0, 0, angle + 90);
+    }
+
+    public void SetPosition(Vector2 position)
+    {
+        Position = position;
+        transform.position = position;
     }
 }

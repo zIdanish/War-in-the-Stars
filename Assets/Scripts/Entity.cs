@@ -2,9 +2,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Reflection;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UIElements;
 using static UnityEngine.EventSystems.EventTrigger;
 using Color = UnityEngine.Color;
 #nullable enable
@@ -22,14 +24,19 @@ public class Entity : MonoBehaviour
     [SerializeField] private int score = 0;
 
     // Init default stats
-    public bool IsPlayer = false;
-    private Dictionary<string, float> Default = new Dictionary<string, float> { };
+    public Transform? HealthBar { get; private set; }
+    public Dictionary<string, float> Default { get; private set; } = new Dictionary<string, float> { };
     private float invulnerable = 0; // 0 means vulnerable, anything above is invulnerable (in seconds)
 
     // Entity Vector2 info, destination is the target position the entity is moving towards.
     private SpriteRenderer sprite = null!;
     private Vector2 destination;
     private Vector2 position;
+
+    // Orientation variables
+    private float? target_angle;
+    private Vector2? target_destination;
+    private Transform? target_lock;
     /*<-------------------------------------->*/
     private GameManager Game = null!;
     private void Awake()
@@ -53,6 +60,7 @@ public class Entity : MonoBehaviour
         UpdatePosition();
         RefreshStats();
         InvulnerableSprite();
+        UpdateAngle();
     }
 
     /* Public Variables */
@@ -76,6 +84,25 @@ public class Entity : MonoBehaviour
         }
 
         transform.position = position; // Set the object position to the new position
+    }
+    private void UpdateAngle()
+    {
+        if (target_lock != null)
+        {
+            target_destination = target_lock.position;
+        }
+
+        if (target_destination == null && target_angle == null) { return; }
+
+        float angle = target_angle!=null ? (float)target_angle : transform.CompareTag("Player") ? 0 : 180;
+
+        if (target_destination != null)
+        {
+            var direction = (Vector2)target_destination - position;
+            angle += Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        }
+
+        transform.rotation = Quaternion.Euler(0, 0, 90 + angle);
     }
     private void RefreshStats() // Updates the entity's stats
     {
@@ -120,6 +147,45 @@ public class Entity : MonoBehaviour
     public void SetPosition(Vector2 NewPosition) // Sets the entity's position to that Vector2 without taking into account SPD
     {
         position = NewPosition;
+        transform.position = position;
+    }
+    private void unLook()
+    {
+        target_angle = null;
+        target_destination = null;
+        target_lock = null;
+    }
+    public void Look()
+    {
+        unLook();
+        transform.rotation = Quaternion.Euler(0, 0, transform.CompareTag("Player") ? 0 : 180);
+    }
+    public void Look(Vector2 Position)
+    {
+        unLook();
+        target_destination = Position;
+    }
+    public void Look(float Angle)
+    {
+        unLook();
+        transform.rotation = Quaternion.Euler(0, 0, Angle + (transform.CompareTag("Player") ? 0 : 180));
+    }
+    public void Look(Vector2 Position, float Angle)
+    {
+        unLook();
+        target_angle = Angle;
+        target_destination = Position;
+    }
+    public void Look(Transform Lock)
+    {
+        unLook();
+        target_lock = Lock;
+    }
+    public void Look(Transform Lock, float Angle)
+    {
+        unLook();
+        target_angle = Angle;
+        target_lock = Lock;
     }
 
     /* Entity Functions */
@@ -141,10 +207,16 @@ public class Entity : MonoBehaviour
     // Stat functions
     public void Die(Entity? Caster) // Called when the entity is dead
     {
-        if (Caster != null && Caster.tag == "Player") // Add score when the entity is killed by player
+        if (Caster != null && Caster.CompareTag("Player")) // Add score when the entity is killed by player
         {
             Game.AddScore(score);
         }
+
+        if (HealthBar != null)
+        {
+            HealthBar.gameObject.SetActive(false);
+        }
+
         Destroy(gameObject);
     }
     public float Damage(float dmg, Entity? Caster) // Called when the entity is damaged by another, returns excess
@@ -159,9 +231,9 @@ public class Entity : MonoBehaviour
         float lastHP = hp;
         hp = Mathf.Clamp(hp - dmg, 0, Default["HP"]);
 
-        if (IsPlayer)
+        if (HealthBar != null)
         {
-            Game.DisplayHP(hp, Default["HP"]);
+            Game.DisplayHP(HealthBar, hp, Default["HP"]);
         }
 
         if (hp <= 0)
@@ -177,10 +249,72 @@ public class Entity : MonoBehaviour
 
         hp = Mathf.Clamp(hp + heal, 0, Default["HP"]);
 
-        if (IsPlayer)
+        if (HealthBar != null)
         {
-            Game.DisplayHP(hp, Default["HP"]);
+            Game.DisplayHP(HealthBar, hp, Default["HP"]);
         }
+    }
+    public Action Stat(string stat, float change) // Change the stat by number, return the function to reset the stat
+    {
+        stat = stat.ToLower();
+        FieldInfo field = GetType().GetField(stat, BindingFlags.Instance | BindingFlags.NonPublic);
+
+        // check if the field is not null and is a float
+        if (field == null) { Debug.Log($"Field - {stat} - does not exist"); return () => { return; }; }
+        if (field.FieldType != typeof(float)) { Debug.Log($"Stat - {stat} - is not a float"); return () => { return; }; }
+
+        // set value
+        float value = (float)field.GetValue(this);
+        if ((value + change) < 0)
+        {
+            change = -value;
+        }
+
+        field.SetValue(this, value + change);
+
+        return () => { ResetStat(field, change); };
+    }
+    public void Stat(string stat, float change, float duration) // Change the stat for a limited time
+    {
+        FieldInfo field = GetType().GetField(stat, BindingFlags.Instance | BindingFlags.NonPublic);
+
+        // check if the field is not null and is a float
+        if (field == null) { Debug.Log($"Field - {stat} - does not exist"); return; }
+        if (field.FieldType != typeof(float)) { Debug.Log($"Stat - {stat} - is not a float"); return; }
+
+        // set value
+        float value = (float)field.GetValue(this);
+        if ((value + change) < 0)
+        {
+            change = -value;
+        }
+
+        field.SetValue(this, value + change);
+
+        StartCoroutine(ResetStat(field, change, duration));
+    }
+    private void ResetStat(FieldInfo field, float change)
+    {
+        float value = (float)field.GetValue(this);
+        field.SetValue(this, value - change);
+    }
+    private IEnumerator ResetStat(FieldInfo field, float change, float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        float value = (float)field.GetValue(this);
+        field.SetValue(this, value - change);
+    }
+    public void SetInvulnerable(float duration)
+    {
+        invulnerable = MathF.Max(invulnerable, duration);
+    }
+    public void SetInvulnerable(bool toggle)
+    {
+        invulnerable = toggle ? Mathf.Infinity : 0;
+    }
+    public void DisplayBar(Transform bar) {
+        HealthBar = bar;
+        Game.DisplayHP(bar, hp, Default["HP"]);
     }
 
     // Shoot Functions

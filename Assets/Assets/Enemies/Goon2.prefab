@@ -12,6 +12,22 @@ PrefabInstance:
       propertyPath: m_IsTrigger
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 4412031894215741312, guid: 007c0b9564c2fdc44bb90a5a5f75561f, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 2c9040f370d99f143a7135e315f06260, type: 3}
+    - target: {fileID: 5748802934649636316, guid: 007c0b9564c2fdc44bb90a5a5f75561f, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 5748802934649636316, guid: 007c0b9564c2fdc44bb90a5a5f75561f, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 5748802934649636316, guid: 007c0b9564c2fdc44bb90a5a5f75561f, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5748802934649636316, guid: 007c0b9564c2fdc44bb90a5a5f75561f, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -52,9 +68,21 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 180
       objectReference: {fileID: 0}
+    - target: {fileID: 8125693464603410726, guid: 007c0b9564c2fdc44bb90a5a5f75561f, type: 3}
+      propertyPath: hp
+      value: 300
+      objectReference: {fileID: 0}
+    - target: {fileID: 8125693464603410726, guid: 007c0b9564c2fdc44bb90a5a5f75561f, type: 3}
+      propertyPath: dmg
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 8125693464603410726, guid: 007c0b9564c2fdc44bb90a5a5f75561f, type: 3}
+      propertyPath: score
+      value: 150
+      objectReference: {fileID: 0}
     - target: {fileID: 9036611122958503002, guid: 007c0b9564c2fdc44bb90a5a5f75561f, type: 3}
       propertyPath: m_Name
-      value: Goon1
+      value: Goon2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -62,14 +90,14 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 9036611122958503002, guid: 007c0b9564c2fdc44bb90a5a5f75561f, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 7757431959471726237}
+      addedObject: {fileID: 8644837407056289766}
   m_SourcePrefab: {fileID: 100100000, guid: 007c0b9564c2fdc44bb90a5a5f75561f, type: 3}
 --- !u!1 &65864194826999904 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 9036611122958503002, guid: 007c0b9564c2fdc44bb90a5a5f75561f, type: 3}
   m_PrefabInstance: {fileID: 9043653368771089466}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &7757431959471726237
+--- !u!114 &8644837407056289766
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -78,10 +106,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 65864194826999904}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0f29616d382bd5e49b983367436f7d86, type: 3}
+  m_Script: {fileID: 11500000, guid: 0586a02593eaa384b8386b359fe961ba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Cooldown: 1
+  Cooldown: 0.5
   ProjectileSpeed: 10
-  Lifetime: 4
-  Projectile: {fileID: 1699499589198558219, guid: 7bc6ac80f69adac4c8a3bbfb90fd6560, type: 3}
+  Lifetime: 6
+  Projectile: {fileID: 1266743236956514637, guid: 31f30408000e04f4bbbb269bb8849755, type: 3}

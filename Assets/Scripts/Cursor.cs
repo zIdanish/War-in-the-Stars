@@ -9,8 +9,10 @@ public class Cursor : MonoBehaviour
 {
     /* Init Variables */
 
+    private SpriteRenderer Sprite = null!;
     private GameManager Game = null!;
-    public Transform? follow;
+    public Transform? Follow;
+    public bool Bounded { get; private set; } = false;
 
     // InputAction objects to detect player input for movement, clicking and shifting
     [SerializeField] private InputAction Move = null!;
@@ -20,7 +22,6 @@ public class Cursor : MonoBehaviour
     // Variables for cursor position and delta
     private Vector2 position = new Vector2(0, 0);
     private Vector2 delta = new Vector2(0, 0);
-    private bool bounded = false;
 
     private void OnEnable()
     {
@@ -40,6 +41,7 @@ public class Cursor : MonoBehaviour
     }
     private void Start()
     {
+        Sprite = GetComponent<SpriteRenderer>();
         Game = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameManager>();
     }
 
@@ -54,7 +56,7 @@ public class Cursor : MonoBehaviour
     public void MoveCursor()
     {
         delta = Move.ReadValue<Vector2>() * _settings.Sensitivity / (Shifted ? 16 : 8); // Gets the cursor delta translated into unity Vector2
-        var Boundaries = bounded ? _settings.Boundaries : _settings.Screen;
+        var Boundaries = Bounded ? _settings.Boundaries : _settings.Screen;
 
         if (delta.x != 0 || delta.y != 0) // Check if the mouse moved
         {
@@ -73,20 +75,25 @@ public class Cursor : MonoBehaviour
     /* Private Functions */
     private void OnClick(InputAction.CallbackContext context)
     {
-        if ( 
-            follow == null || 
+        if (
+            Follow == null || 
             Game.Paused || 
             MathF.Abs(position.x) > _settings.Boundaries.x || 
             MathF.Abs(position.y) > _settings.Boundaries.y) 
         {
             return; 
         }
-        position = (Vector2) follow.position;
+        position = (Vector2)Follow.position;
         transform.position = position;
-        bounded = true;
+
+        // Bound
+        Bounded = true;
+        Sprite.sortingOrder = _settings.zPlayer - 1;
     }
     private void OnRelease(InputAction.CallbackContext context)
     {
-        bounded = false;
+        // Unbound
+        Bounded = false;
+        Sprite.sortingOrder = 50;
     }
 }

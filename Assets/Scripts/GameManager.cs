@@ -20,24 +20,13 @@ public class GameManager : MonoBehaviour
     [NonSerialized] public Entity player = null!;
     public int score { get; protected set; } = 0;
     protected Vector2 bounds = new Vector2();
+    public Transform PlayerHealth = null!;
+    public Transform BossHealth = null!;
     /*<----------------------------------------------->*/
     protected Transform UI = null!;
     private TextMeshProUGUI ScoreUI = null!;
-    private Transform Health = null!;
-    private Image HealthBar = null!;
-    private TextMeshProUGUI HealthDisplay = null!;
     private Transform Entities = null!;
     private Transform Projectiles = null!;
-
-    private void Awake() // Hide windows cursor when the game is loaded
-    {
-        HideCursor();
-
-        // Get Player
-        Entity? getPlayer = Entity.getPlayer();
-        if (getPlayer == null) { Debug.Log("No player found!"); return; }
-        player = getPlayer.GetComponent<Entity>();
-    }
 
     /* Public Variables */
     public int Score { get { return score; } }
@@ -51,12 +40,32 @@ public class GameManager : MonoBehaviour
         Projectiles = GameObject.FindGameObjectWithTag("Projectiles").transform;
         bounds = _settings.Boundaries;
 
-        Health = UI.Find("Health");
-        HealthBar = Health.Find("Bar").GetComponent<Image>();
-        HealthDisplay = Health.Find("Display").GetComponent<TextMeshProUGUI>();
+        PlayerHealth = UI.Find("PlayerHealth");
+        BossHealth = UI.Find("BossHealth");
 
-        PlayerAbilities();
         StartCoroutine(Timeline());
+        HideCursor();
+        StartCoroutine(InitPlayer());
+
+        // disable boss healthbar
+        BossHealth.gameObject.SetActive(false);
+    }
+    private IEnumerator InitPlayer()
+    {
+        // Get Player
+        Entity? getPlayer = Entity.getPlayer();
+        while (getPlayer == null)
+        {
+            getPlayer = Entity.getPlayer();
+            yield return null;
+        }
+        player = getPlayer.GetComponent<Entity>();
+
+        // Set Healthbar
+        player.DisplayBar(PlayerHealth);
+
+        // Activate player abilities
+        PlayerAbilities();
     }
     protected virtual void PlayerAbilities()
     {
@@ -84,26 +93,45 @@ public class GameManager : MonoBehaviour
     // Game behaviour
     public void Pause()
     {
-        Paused = !Paused;
-        Time.timeScale = Paused ? 0f : 1f;
+        if (Ended) { return; }
+        Pause(!Paused);
     }
     public void Pause(bool paused)
     {
         Paused = paused;
         Time.timeScale = Paused ? 0f : 1f;
     }
+    public void End()
+    {
+        if (Ended) { return; }
+        Ended = true;
+        Time.timeScale = 1f;
+    }
+
+    // Wait Functions
+    public IEnumerator WaitUntilDied(Entity entity)
+    {
+        while (!Ended && !entity.IsDestroyed()) { 
+            yield return null;
+        }
+    }
 
     // Increases the score
     public void AddScore(int _score)
     {
-        if (_score <= 0) return;
+        if (Ended || _score <= 0) return;
         score += _score;
 
         // refresh score text
-        ScoreUI.SetText(score.ToString("D7"));
+        ScoreUI.SetText(score.ToString("D9"));
     }
-    public void DisplayHP(float hp, float maxHP)
+    public void DisplayHP(Transform health, float hp, float maxHP)
     {
+        if (Ended) { return; }
+
+        Image HealthBar = health.Find("Bar").GetComponent<Image>();
+        TextMeshProUGUI HealthDisplay = health.Find("Display").GetComponent<TextMeshProUGUI>();
+
         RectTransform hpbar = HealthBar.rectTransform;
         RectTransform? frame = hpbar.parent as RectTransform;
         if (frame == null) { Debug.Log("HP Frame not found!"); return; }
@@ -119,19 +147,49 @@ public class GameManager : MonoBehaviour
     // Spawns an enemy at the position, and moves towards target position
     public Entity? SpawnEnemy(GameObject enemy, Vector2 position, Vector2 targetPosition)
     {
-        if (EntityCount > EntityLimit) { return null; }
+        if (Ended || EntityCount > EntityLimit) { return null; }
         GameObject Enemy = Instantiate(enemy);
-        Enemy.transform.position = position;
         Entity Component = Enemy.GetComponent<Entity>();
         Component.SetPosition(position);
         Component.MoveTo(targetPosition);
         Enemy.transform.SetParent(Entities);
+        Enemy.GetComponent<SpriteRenderer>().sortingOrder = _settings.zEnemy;
         return Component;
     }
     public Entity? SpawnEnemy(GameObject enemy, Vector2 position, Vector2 targetPosition, Action<Entity> action)
     {
+        if (Ended) { return null; }
+
         Entity? Component = SpawnEnemy(enemy, position, targetPosition);
-        if (Component != null) {
+        if (Component != null)
+        {
+            action(Component);
+        }
+
+        return Component;
+    }
+    public Entity? SpawnBoss(GameObject enemy, Vector2 position, Vector2 targetPosition)
+    {
+        if (Ended) { return null; }
+        BossHealth.gameObject.SetActive(true);
+        GameObject Enemy = Instantiate(enemy);
+        Entity Component = Enemy.GetComponent<Entity>();
+        Component.SetPosition(position);
+        Component.MoveTo(targetPosition);
+        BossHealth.Find("Name").GetComponent<TextMeshProUGUI>().SetText(enemy.name);
+        Component.DisplayBar(BossHealth);
+        BossHealth.gameObject.SetActive(true);
+        Enemy.transform.SetParent(Entities);
+        Enemy.GetComponent<SpriteRenderer>().sortingOrder = _settings.zEnemy-1;
+        return Component;
+    }
+    public Entity? SpawnBoss(GameObject enemy, Vector2 position, Vector2 targetPosition, Action<Entity> action)
+    {
+        if (Ended) { return null; }
+
+        Entity? Component = SpawnBoss(enemy, position, targetPosition);
+        if (Component != null)
+        {
             action(Component);
         }
 
@@ -153,10 +211,11 @@ public class GameManager : MonoBehaviour
     public Projectile Shoot(GameObject projectile, Vector2 position, string target, float spd, Vector2 destination) // Creates a projectile that moves towards Vector2 direction
     {
         GameObject Projectile = Instantiate(projectile);
+        Projectile.GetComponent<SpriteRenderer>().sortingOrder = target != "Player" ? _settings.zPlayerProjectile : _settings.zEnemyProjectile;
         Projectile Component = Projectile.GetComponent<Projectile>();
         Component.TARGET = target;
         Component.SPD = spd;
-        Component.Position = position;
+        Component.SetPosition(position);
         Component.MoveTo(destination);
         Projectile.transform.parent = Projectiles;
         return Component;

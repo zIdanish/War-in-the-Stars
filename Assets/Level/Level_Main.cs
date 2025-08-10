@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Level_Test : GameManager
+public class Level_Main : GameManager
 {
     /*<-------------------Enemies------------------>*/
     public GameObject Goon1;
@@ -32,8 +32,8 @@ public class Level_Test : GameManager
     protected override IEnumerator NewWave()
     {
        IEnumerator Wave = // Wave Logic
-            score < 2500 ? Wave1()
-            : Wave2();
+            score < 500 ? Wave1() :
+            Wave2();
 
        // Random Health Drop
        if (Random.Range(score<2500 ? 75 : 1, 101) > 99)
@@ -70,20 +70,24 @@ public class Level_Test : GameManager
     }
     private IEnumerator Wave2()
     {
-        // 2 Forward Goons
-        for (int x = -20; x <= 20; x += 40)
+        yield return new WaitForSeconds(1f);
+
+        // 3 Forward Goons
+        for (int i = -20; i <= 20; i += 40)
         {
+            float x = i + Random.Range(-10.0f, 10.0f);
             SpawnEnemy(Goon1, new Vector2(x, bounds.y + 20), new Vector2(x, bounds.y - 20));
         }
 
-        yield return new WaitForSeconds(0f);
+        yield return new WaitForSeconds(.25f);
 
         // 3 Back Goons
-        for (int x = -40; x <= 40; x += 40)
+        for (int i = -40; i <= 40; i += 40)
         {
+            float x = i + Random.Range(-10.0f, 10.0f);
             SpawnEnemy(Goon1, new Vector2(x, bounds.y + 20), new Vector2(x, bounds.y - 10));
         }
 
-        yield return new WaitForSeconds(0f);
+        yield return new WaitForSeconds(2f);
     }
 }
