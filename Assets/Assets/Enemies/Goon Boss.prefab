@@ -106,3 +106,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Projectile: {fileID: 1699499589198558219, guid: 7bc6ac80f69adac4c8a3bbfb90fd6560, type: 3}
+  Projectile_Laser: {fileID: 7273603376073009058, guid: 8b0f6ab008263a64ebb00875745ace87, type: 3}

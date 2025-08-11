@@ -23,7 +23,6 @@ public class PJ_Heal : Projectile
     {
         // Heals the entity and destroys this object
         entity.Heal(HEAL, Caster);
-
-        Destroy(this.gameObject);
+        Destroyed();
     }
 }

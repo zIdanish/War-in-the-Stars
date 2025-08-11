@@ -25,6 +25,7 @@ public class Entity : MonoBehaviour
 
     // Init default stats
     public Transform? HealthBar { get; private set; }
+    public Vector2 Direction { get; private set; } = new Vector2(0,1);
     public Dictionary<string, float> Default { get; private set; } = new Dictionary<string, float> { };
     private float invulnerable = 0; // 0 means vulnerable, anything above is invulnerable (in seconds)
 
@@ -92,7 +93,8 @@ public class Entity : MonoBehaviour
             target_destination = target_lock.position;
         }
 
-        if (target_destination == null && target_angle == null) { return; }
+        if (target_destination == null && target_angle == null)
+        { Direction = new Vector2(0, transform.CompareTag("Player") ? 1 : -1); return; }
 
         float angle = target_angle!=null ? (float)target_angle : transform.CompareTag("Player") ? 0 : 180;
 
@@ -102,7 +104,15 @@ public class Entity : MonoBehaviour
             angle += Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         }
 
-        transform.rotation = Quaternion.Euler(0, 0, 90 + angle);
+        angle += 90;
+
+        { // Set Direction
+            float radians = (angle) * Mathf.Deg2Rad;
+            Direction = new Vector2(Mathf.Cos(radians), Mathf.Sin(radians));
+        }
+
+        // Set Rotation
+        transform.rotation = Quaternion.Euler(0, 0, angle);
     }
     private void RefreshStats() // Updates the entity's stats
     {

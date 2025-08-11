@@ -11,17 +11,23 @@ public class Projectile : MonoBehaviour
 
     /*<----------------Stats---------------->*/
     [NonSerialized] public float SPD = 15;
-    public float? LIFE; // How long this projectile lasts for
     [NonSerialized] public string? TARGET; // Target entity tag (Player/Enemy)
+    public float? LIFE; // How long this projectile lasts for
     /*<---------------Movement-------------->*/
     public Vector2 Position { get; private set; }
-    [NonSerialized] public Entity? Caster;
     public Vector2 Direction { get; private set; }
-    private float? DONT_DELETE = 0;
+    /*<----------------Config--------------->*/
+    public bool DISABLE_DELETE { get; protected set; } = false; // set to true to prevent self delete
+    public bool DISABLE_MOVE { get; protected set; } = false; // disable moving
+
     /*<------------------------------------->*/
+    [NonSerialized] public Entity? Caster;
+    private float? DONT_DELETE = 0; // same as disable delete but to prevent the projectile from killing itself on spawn
     protected float elapsed = 0;
+    protected GameManager Game = null!;
     protected virtual void Start()
     {
+        Game = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameManager>();
         transform.position = Position;
     }
     protected virtual void Update()
@@ -30,6 +36,10 @@ public class Projectile : MonoBehaviour
 
         CheckLife();
         UpdatePosition();
+    }
+    protected virtual void Destroyed()
+    {
+        Destroy(this.gameObject);
     }
     /* Class Functions */
     protected virtual void OnHit(Entity entity)
@@ -53,6 +63,7 @@ public class Projectile : MonoBehaviour
     /* Update Functions */
     private void UpdatePosition()
     {
+        if (DISABLE_MOVE) { return; }
         // Moves the projectile by the direction
         var delta = Time.deltaTime;
         var speed = SPD * 5 * delta;
@@ -63,6 +74,8 @@ public class Projectile : MonoBehaviour
     }
     private void CheckLife()
     {
+        if (DISABLE_DELETE) { return; }
+
         // Checks if the object has elapsed past its lifetime, deletes if true
         if (LIFE != null && elapsed > LIFE)
         {
@@ -94,7 +107,11 @@ public class Projectile : MonoBehaviour
     /* Projectile Functions */
     public void MoveTo(Vector2 destination) // Moves the projectile in the direction of the destination
     {
-        Vector2 diff = (destination - Position);
+        MoveTo(destination, Position);
+    }
+    public void MoveTo(Vector2 destination, Vector2 origin)
+    {
+        Vector2 diff = (destination - origin);
         diff.Normalize();
         Direction = diff;
 

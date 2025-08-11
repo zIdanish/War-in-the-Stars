@@ -27,6 +27,6 @@ public class PJ_Damage : Projectile
 
         // Destroy this object if no damage is left
         if (DMG > 0) { return; }
-        Destroy(this.gameObject);
+        Destroyed();
     }
 }

@@ -32,7 +32,7 @@ public class Level_Test : GameManager
     /* Wave Manager */
     protected override IEnumerator NewWave()
     {
-       IEnumerator Wave = score < 500 ? TestWave() : FunnyWave();
+       IEnumerator Wave = score < 500 ? BossWave() : FunnyWave();
 
        // Create Wave
        yield return StartCoroutine(Wave);
@@ -47,6 +47,23 @@ public class Level_Test : GameManager
         // Goon 1
         float x = Random.Range(-60.0f, 60.0f);
         SpawnEnemy(Goon1, new Vector2(x, bounds.y + 20), new Vector2(x, bounds.y - Random.Range(5.0f, 30.0f)));
+
+        yield return WaitUntilDied(boss);
+    }
+    private IEnumerator BossWave()
+    {
+        yield return new WaitForSeconds(1f);
+
+        // Goon Boss
+        var boss = SpawnBoss(GoonBoss, new Vector2(0, bounds.y + 30), new Vector2(0, bounds.y - 30));
+
+        // Goon 1 Barrage
+        for (int i = 0; i < 15; i++)
+        {
+            float x = Random.Range(-60.0f, 60.0f);
+            SpawnEnemy(Goon1, new Vector2(x, bounds.y + 20), new Vector2(x, bounds.y - Random.Range(5.0f, 30.0f)));
+            yield return new WaitForSeconds(.25f);
+        }
 
         yield return WaitUntilDied(boss);
     }

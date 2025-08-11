@@ -9,12 +9,14 @@ public class _settings : MonoBehaviour
     public static float BoundaryShear = 5.0f; // cursor offset from the boundaries
 
     // Z Layers
+    public static int zBgProjectile = 2;
     // leave zindex below Enemy for Boss Enemy
     public static int zEnemy = 4;
     public static int zPlayerProjectile = 5;
     // leave zindex below player, above zPlayerProjectile empty for cursor
     public static int zPlayer = 7;
     public static int zEnemyProjectile = 8;
+    // leave zindex above zEnemyProjectile empty for warning projectiles
 
     /* Automatic Variables */
     public static Vector2 Screen { get { float y = Camera.main.orthographicSize; return new Vector2(y/9*16, y); } }

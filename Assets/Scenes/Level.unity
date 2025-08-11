@@ -503,6 +503,7 @@ MonoBehaviour:
   EntityLimit: 25
   PlayerHealth: {fileID: 0}
   BossHealth: {fileID: 0}
+  Warning: {fileID: 7273603376073009058, guid: d789432b16245344388b76dec3b4bbe2, type: 3}
   Goon1: {fileID: 65864194826999904, guid: a8859a480382a8441aafd88e09621f6e, type: 3}
   Goon2: {fileID: 65864194826999904, guid: e1b54a214afc5ef488b7009d863745ef, type: 3}
   GoonBoss: {fileID: 6278330309585606411, guid: e08501f0d9f2314449898e39b2693a73, type: 3}
@@ -555,7 +556,10 @@ MonoBehaviour:
   EntityLimit: 50
   PlayerHealth: {fileID: 0}
   BossHealth: {fileID: 0}
+  Warning: {fileID: 0}
   Goon1: {fileID: 0}
+  Goon2: {fileID: 0}
+  GoonBoss: {fileID: 0}
   HealOrb: {fileID: 0}
   PlayerBullet: {fileID: 0}
   PlayerBulletBig: {fileID: 0}

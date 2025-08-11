@@ -6,6 +6,8 @@ public class Level_Main : GameManager
 {
     /*<-------------------Enemies------------------>*/
     public GameObject Goon1;
+    public GameObject Goon2;
+    public GameObject GoonBoss;
     /*<-----------------Projectiles---------------->*/
     public GameObject HealOrb;
     public GameObject PlayerBullet;
@@ -89,5 +91,22 @@ public class Level_Main : GameManager
         }
 
         yield return new WaitForSeconds(2f);
+    }
+    private IEnumerator BossWave()
+    {
+        yield return new WaitForSeconds(1f);
+
+        // Goon Boss
+        var boss = SpawnBoss(GoonBoss, new Vector2(0, bounds.y + 30), new Vector2(0, bounds.y - 30));
+
+        // Goon 1 Barrage
+        for (int i = 0; i < 15; i++)
+        {
+            float x = Random.Range(-60.0f, 60.0f);
+            SpawnEnemy(Goon1, new Vector2(x, bounds.y + 20), new Vector2(x, bounds.y - Random.Range(5.0f, 30.0f)));
+            yield return new WaitForSeconds(.25f);
+        }
+
+        yield return WaitUntilDied(boss);
     }
 }

@@ -22,6 +22,9 @@ public class GameManager : MonoBehaviour
     protected Vector2 bounds = new Vector2();
     public Transform PlayerHealth = null!;
     public Transform BossHealth = null!;
+
+    // Prefabs
+    public GameObject Warning = null!;
     /*<----------------------------------------------->*/
     protected Transform UI = null!;
     private TextMeshProUGUI ScoreUI = null!;
@@ -236,5 +239,38 @@ public class GameManager : MonoBehaviour
 
         Projectile Component = Shoot(projectile, position, target, spd, destination);
         return Component;
+    }
+    public IEnumerator Warn(float duration, Transform transform)
+    {
+        GameObject Alert = Instantiate(Warning);
+        Alert.transform.SetParent(Projectiles);
+        Laser Component = Alert.GetComponent<Laser>();
+        Component.Begin(duration);
+
+        while (!Alert.IsDestroyed())
+        {
+            Alert.transform.localPosition = transform.localPosition;
+            Alert.transform.localRotation = transform.localRotation;
+            yield return null;
+        }
+    }
+    public void Warn(float duration, Vector2 position)
+    {
+        GameObject Alert = Instantiate(Warning);
+        Alert.transform.SetParent(Projectiles);
+        Laser Component = Alert.GetComponent<Laser>();
+        Component.Begin(duration);
+
+        Alert.transform.position = position;
+    }
+    public void Warn(float duration, Vector2 position, float angle)
+    {
+        GameObject Alert = Instantiate(Warning);
+        Alert.transform.SetParent(Projectiles);
+        Laser Component = Alert.GetComponent<Laser>();
+        Component.Begin(duration);
+
+        Alert.transform.position = position;
+        Alert.transform.rotation = Quaternion.Euler(0, 0, angle + 90);
     }
 }
