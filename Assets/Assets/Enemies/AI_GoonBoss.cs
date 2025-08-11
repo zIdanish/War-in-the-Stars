@@ -41,22 +41,8 @@ public class AI_GoonBoss : AI
     private IEnumerator Intro() // Beginning Attack Pattern
     {
         // Opening Zigzags
-        {
-            for (int i = 0; i <= 25; i++)
-            {
-                var mult = Mathf.Abs(5 - i % 9);
-                for (int x = -5 + i % 2; x <= 5; x += 2)
-                {
-                    var angle = x * 15 + mult * 2;
-                    var bullet = (PJ_Damage)entity.Shoot(Projectile, 7.5f, angle);
-                    bullet.transform.localScale *= 1.25f;
-                    bullet.DMG = entity.DMG;
-                }
-                yield return new WaitForSeconds(.1f);
-            }
-        }
+        yield return StartCoroutine(ZigZags(25));
 
-        entity.MoveRandom(BasePosition, 10);
         yield return new WaitForSeconds(1);
 
         // Laser Barrage
@@ -67,12 +53,7 @@ public class AI_GoonBoss : AI
             yield return new WaitForSeconds(2);
 
             // Spray
-            entity.MoveRandom(BasePosition, 10);
-            for (int i = 0; i < 3; i++)
-            {
-                Spray((i % 2) * 17.5f);
-                yield return new WaitForSeconds(.333f);
-            }
+            yield return StartCoroutine(MultiSpray(3));
 
             // Laser Beams
             Laser(2, 2, -30);
@@ -81,37 +62,55 @@ public class AI_GoonBoss : AI
             yield return new WaitForSeconds(2);
 
             // Spray
-            entity.MoveRandom(BasePosition, 10);
-            for (int i = 0; i < 3; i++)
-            {
-                Spray((i % 2) * 17.5f);
-                yield return new WaitForSeconds(.333f);
-            }
+            yield return StartCoroutine(MultiSpray(3));
+        }
 
-            // Homing Laser
-            var laser = Laser(3, 2, 0);
-            if (laser != null)
-            {
-                StartCoroutine(LaserFollow(laser, 2));
+        // Homing Laser
+        var laser = Laser(3, 2, 0);
+        if (laser != null)
+        {
+            StartCoroutine(LaserFollow(laser, 2));
 
-                yield return new WaitForSeconds(2);
-                // Spray
-                entity.MoveRandom(BasePosition, 10);
-                for (int i = 0; i < 3; i++)
-                {
-                    Spray((i%2)* 17.5f);
-                    yield return new WaitForSeconds(.333f);
-                }
+            yield return new WaitForSeconds(2);
 
-                while (!laser.IsDestroyed()) { yield return null; }
-            }
+            // Spray
+            yield return StartCoroutine(MultiSpray(7));
+
+            while (!laser.IsDestroyed()) { yield return null; }
         }
 
         entity.Look();
     }
+
+    /*<----------------Pattern Attacks--------------->*/
+    private IEnumerator ZigZags(int count)
+    {
+        for (int i = 0; i < count; i++)
+        {
+            var mult = Mathf.Abs(5 - i % 9);
+            for (int x = -5 + i % 2; x <= 5; x += 2)
+            {
+                var angle = x * 15 + mult * 2;
+                var bullet = (PJ_Damage)entity.Shoot(Projectile, 7.5f, angle);
+                bullet.transform.localScale *= 1.25f;
+                bullet.DMG = entity.DMG;
+            }
+            yield return new WaitForSeconds(.15f);
+        }
+    }
+    private IEnumerator MultiSpray(int count)
+    {
+        entity.MoveRandom(BasePosition, 10);
+        for (int i = 0; i < count; i++)
+        {
+            Spray((i % 2) * 17.5f);
+            yield return new WaitForSeconds(.333f);
+        }
+    }
+    /*<----------------Projectile Presets--------------->*/
     private void Spray(float angle)
     {
-        for (float x = -70; x < 70; x += 17.5f) {
+        for (float x = -90; x < 90; x += 17.5f) {
             var bullet = (PJ_Damage)entity.Shoot(Projectile, 12.5f, x + angle);
             bullet.transform.localScale *= 1.25f;
             bullet.DMG = entity.DMG;

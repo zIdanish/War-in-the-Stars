@@ -39,8 +39,8 @@ public class Laser : MonoBehaviour
         float wait = Duration - transition * 2;
         DOTween.To(
             () => 0.0f,
-            x => temp.SetFloat("_Elapsed", x), 1.0f, transition)
-               .SetEase(Ease.OutQuad);
+            x => temp.SetFloat("_Elapsed", x), 1.0f, transition
+        ).SetEase(Ease.OutQuad);
 
         yield return new WaitForSeconds(wait);
 

@@ -3,10 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
+/// <summary>
+/// AI core for enemies
+/// This component creates a behavioural pattern for an enemy
+/// Create a subclass of this script to create a new AI
+/// Attach the AI to an entity
+/// </summary>
 public class AI : MonoBehaviour
 {
-    /* Init Variables */
-    protected Entity entity;
+    /*<------------Stats----------->*/
+    protected Entity entity; // the entity this AI class is attached to
+
+    /*<------------Init Functions----------->*/
     protected void Init()
     {
         entity = GetComponent<Entity>();
@@ -14,12 +22,17 @@ public class AI : MonoBehaviour
     }
 
     /*<----------------Timeline--------------->*/
-    protected virtual IEnumerator Timeline() // Behaviour timeline
+
+    // Behaviour timeline
+    // --> Placeholder, replace in the subclass
+    protected virtual IEnumerator Timeline()
     {
         Debug.Log("No Timeline for this AI?!");
         yield return null;
     }
-    protected Coroutine Call(IEnumerator routine) // Safely call a coroutine
+
+    // Safely call a coroutine
+    protected Coroutine Call(IEnumerator routine)
     {
         if (routine != null)
         {
@@ -30,13 +43,19 @@ public class AI : MonoBehaviour
             return StartCoroutine(__proxy());
         }
     }
-    protected void End(Coroutine routine) // Safely end a coroutine
+
+    // Safely end a coroutine
+    // --> Not sure why but this somehow fixed an error i keep having
+    // --> Unity coroutines actually suck wth who made this garbage
+    protected void End(Coroutine routine)
     {
         if (routine != null)
         {
             StopCoroutine(routine);
         }
     }
+
+    // Yields the function until the entity stops moving
     protected IEnumerator WaitUntilStationary()
     {
         while (entity.Moving)
@@ -44,6 +63,8 @@ public class AI : MonoBehaviour
             yield return null;
         }
     }
+
+    // proxy for safely calling coroutines
     private IEnumerator __proxy()
     {
         yield return null;

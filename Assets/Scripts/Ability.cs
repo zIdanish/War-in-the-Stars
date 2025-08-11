@@ -10,43 +10,74 @@ using UnityEngine.UIElements;
 using Image = UnityEngine.UI.Image;
 #nullable enable
 
+/// <summary>
+/// Ability core [FOR PLAYER ONLY]
+/// This component creates a bullet pattern for the player that is either passive or active
+/// Abilities are set by the GameManager, when the level begins
+/// To create an active bullet pattern, set the icon and input variable in GameManager
+/// Refer to other levels to figure out how to do it ig
+/// </summary>
 public class Ability : MonoBehaviour
 {
-    public Transform? icon;
-    protected Image? background;
-    protected TextMeshProUGUI? text;
-    public InputAction input = new InputAction();
+    /*<----------------UI Variables---------------->*/
+    //--> my bad for unhelpful naming scheme
+    public Transform? icon; // ability icon UI (no need to set if the ability is automatic)
+
+    // below are set automatically
+    protected Image? background; // cooldown background image
+    protected TextMeshProUGUI? text; // cooldown text display
+    /*<----------------Stats---------------->*/
+    public InputAction input = new InputAction(); // keybinds
+    /*<-----------------Misc---------------->*/
     protected Entity entity = null!;
     protected Coroutine timeline = null!;
+
+    /*<------------Init Functions----------->*/
+
+    // Refresh the input action to be activated and deactivated in tandem with the script
     private void OnEnable()
     {
-        if (input != null) { input.Enable(); } // Enable inputs when this component is disabled
+        if (input != null) { input.Enable(); }
     }
     private void OnDisable()
     {
-        if (input != null) { input.Disable(); }; // Disable inputs when this component is disabled
+        if (input != null) { input.Disable(); };
     }
+
+    // Called outside the script
     public void Init()
     {
+        // init variables
         entity = gameObject.GetComponent<Entity>();
         timeline = StartCoroutine(Timeline());
 
-        // icon stuff
+        // init icon if not null
         if (icon == null) { return; }
         background = icon.Find("Cooldown").GetComponent<Image>();
         text = icon.Find("Display").GetComponent<TextMeshProUGUI>();
         background.enabled = false; text.enabled = false;
     }
+
+    /*<------------Timeline----------->*/
+
+    // Ability timeline
+    // --> This is just a placeholder, replace it with the actual bullet pattern
     public virtual IEnumerator Timeline()
     {
         Debug.Log($"{this.GetType().FullName} does not have a timeline!!!!!!!!!!!!!!!!!!");
         yield return null;
     }
+
+    // Yields until the ability button has been pressed
+    // Used only for active abilities, passive abilities can just ignore
     protected IEnumerator AbilityPressed()
     {
         if (input == null) { yield break; }
         while (!input.IsPressed()) { yield return null; }
     }
+
+    // Causes the Ability to go on a Cooldown
+    // Called at the end of the ability, passive abilities ignore this
     protected IEnumerator AbilityCooldown(float cooldown)
     {
         float timer = cooldown;

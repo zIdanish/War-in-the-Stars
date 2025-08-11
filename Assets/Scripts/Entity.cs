@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,23 +12,22 @@ using static UnityEngine.EventSystems.EventTrigger;
 using Color = UnityEngine.Color;
 #nullable enable
 
-//# Entity: Entity behaviour (Stats Management, Movement, Projectile Creation etc. etc.)
+/// <summary>
+/// Entity behaviour for both enemies and the player
+/// Contains all the logic you would want for the entity: Stats, HealthBar link, Movement, etc.
+/// No need to create a subclass for this
+/// </summary>
 public class Entity : MonoBehaviour
 {
     /* Init Variables */
 
     /*<-----------------Stats---------------->*/
+    // --> set these in the entity prefab
     [SerializeField] private float hp = 100;
     [SerializeField] private float spd = 65;
     [SerializeField] private float dmg = 10;
     [SerializeField] private float inv = 0; // invulnerability window
     [SerializeField] private int score = 0;
-
-    // Init default stats
-    public Transform? HealthBar { get; private set; }
-    public Vector2 Direction { get; private set; } = new Vector2(0,1);
-    public Dictionary<string, float> Default { get; private set; } = new Dictionary<string, float> { };
-    private float invulnerable = 0; // 0 means vulnerable, anything above is invulnerable (in seconds)
 
     // Entity Vector2 info, destination is the target position the entity is moving towards.
     private SpriteRenderer sprite = null!;
@@ -35,19 +35,44 @@ public class Entity : MonoBehaviour
     private Vector2 position;
 
     // Orientation variables
+    private float last_angle; // will be set automatically when the entity checks if it's a player or enemy
     private float? target_angle;
     private Vector2? target_destination;
     private Transform? target_lock;
-    /*<-------------------------------------->*/
-    private GameManager Game = null!;
+
+    // other stats info
+    public Transform? HealthBar { get; private set; } // healthbar to display HP on (optional), mainly for bosses and the player
+    private float invulnerable = 0; // 0 means vulnerable, anything above is invulnerable (in seconds)
+    public Dictionary<string, float> Default { get; private set; } = new Dictionary<string, float> { }; // Default stats of the entity
+    /*<------------Public Stats----------->*/
+    // --> i wish i knew about { get; private set; } earlier SO I DONT HAV ETO DO THI_Toihfesj;ierpjsgklegf
+    public float HP { get { return hp; } }
+    public float SPD { get { return spd; } }
+    public float DMG { get { return dmg; } }
+    public Vector2 Position { get { return position; } }
+    public Vector2 Destination { get { return destination; } }
+    public bool Moving { get { return Mathf.Abs(position.x - destination.x) > .1f || Mathf.Abs(position.y - destination.y) > .1f; } }
+    public float Angle { get; private set; }
+    public bool Invulnerable { get { return invulnerable > 0; } }
+    /*<-----------------Config--------------->*/
+    private Tween? MOVING_TO_DESTINATION; // moving tween so that it can be killed
+    private Tween? ROTATING_TO_ANGLE; // rotating tween so that it can be killed
+    /*<-----------------Misc--------------->*/
+    // Init default stats
+    public Vector2 Direction { get; private set; } = new Vector2(0,1);
+    private GameManager Game = null!; // mandatory GameManager
+    /*<------------Init Functions----------->*/
     private void Awake()
     {
         Game = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameManager>();
         sprite = GetComponent<SpriteRenderer>();
+        last_angle = defaultAngle();
 
         // set default stats
         Default["HP"] = hp;
         Default["SPD"] = spd;
+        Default["DMG"] = dmg;
+        Default["INV"] = inv;
 
         // set default position
         position = (Vector2)transform.position;
@@ -58,45 +83,25 @@ public class Entity : MonoBehaviour
     }
     private void Update()
     {
-        UpdatePosition();
         RefreshStats();
         InvulnerableSprite();
         UpdateAngle();
     }
 
-    /* Public Variables */
-    public float HP { get { return hp; } }
-    public float SPD { get { return spd; } }
-    public float DMG { get { return dmg; } }
-    public Vector2 Position { get { return position; } }
-    public Vector2 Destination { get { return destination; } }
-    public bool Moving { get { return Mathf.Abs(position.x-destination.x)>.1f || Mathf.Abs(position.y - destination.y)> .1f; } }
-    public bool Invulnerable { get { return invulnerable > 0; } }
-
-    /* Update Functions */
-    private void UpdatePosition() // Updates entity position
-    {
-        var delta = Time.deltaTime;
-        if (position != destination) // Moves the entity position using Vector2 and lerping towards the target position
-        {
-            var diff = (destination - position).magnitude;
-            var magnitude = Mathf.Clamp(spd * 5 * delta / diff, 0, Mathf.Min(1, diff));
-            position = Vector2.Lerp(position, destination, magnitude);
-        }
-
-        transform.position = position; // Set the object position to the new position
-    }
+    /*<------------Update Functions----------->*/
+    
+    // Calculates the angle using the target_lock, target_destination and target_angle variables
+    // Update the angle if the new angle is different from the old one
     private void UpdateAngle()
     {
-        if (target_lock != null)
+        if (target_lock != null) // set the target destination to the locked transform
         {
             target_destination = target_lock.position;
         }
 
-        if (target_destination == null && target_angle == null)
-        { Direction = new Vector2(0, transform.CompareTag("Player") ? 1 : -1); return; }
+        if (target_destination == null && target_angle == null) { Direction = new Vector2(0, transform.CompareTag("Player") ? 1 : -1); return; }
 
-        float angle = target_angle!=null ? (float)target_angle : transform.CompareTag("Player") ? 0 : 180;
+        float angle = target_angle!=null ? (float)target_angle : defaultAngle();
 
         if (target_destination != null)
         {
@@ -106,13 +111,35 @@ public class Entity : MonoBehaviour
 
         angle += 90;
 
-        { // Set Direction
-            float radians = (angle) * Mathf.Deg2Rad;
-            Direction = new Vector2(Mathf.Cos(radians), Mathf.Sin(radians));
-        }
+        RefreshAngle(angle);
+    }
 
-        // Set Rotation
-        transform.rotation = Quaternion.Euler(0, 0, angle);
+    // Tweens to the new angle based on a default value
+    // Gets the current euler Angle and tweens it to the new one with Slerp
+    // Sets the Direction every tick
+    // --> lazy to add dynamic rotation speed
+    private void RefreshAngle(float angle)
+    {
+        if (angle == last_angle) { return; }
+        if (ROTATING_TO_ANGLE != null) { ROTATING_TO_ANGLE.Kill(); }
+
+        float base_angle = last_angle;
+        last_angle = angle;
+
+        Quaternion start = transform.rotation;
+        Quaternion end = Quaternion.Euler(0, 0, angle);
+
+        DOTween.To(
+            () => 0f,
+            x =>
+            {
+                transform.rotation = Quaternion.Slerp(start, end, x);
+                Direction = new Vector2(transform.right.x, transform.right.y);
+                Angle = Mathf.Lerp(base_angle, angle, x);
+            },
+            1f,
+            1f
+        ).SetEase(Ease.OutExpo).SetLink(gameObject);
     }
     private void RefreshStats() // Updates the entity's stats
     {
@@ -127,6 +154,30 @@ public class Entity : MonoBehaviour
         var c = sprite.color;
         sprite.color = new Color(c.r, c.g, c.b, MathF.Abs(.025f - (invulnerable%.05f)) * 40 );
     }
+    private void NewDestination()
+    {
+        if (position != destination)
+        {
+            // Cancels any previous tweens
+            if (MOVING_TO_DESTINATION != null)
+            {
+                MOVING_TO_DESTINATION.Kill();
+            }
+
+
+            // Set the (non-tweened) position to the current position
+            // And tweens the position towards the destination based on the time = distance/speed formula
+            // Distance is the difference between the destination and current position of the object
+            var currentPos = position;
+            var diff = (destination - currentPos).magnitude;
+            var time = diff / (spd * 5);
+            MOVING_TO_DESTINATION = DOTween.To(
+                () => currentPos,
+                x => { transform.position = x; position = x; }, destination, time
+            ).SetEase(Ease.OutQuad).SetLink(gameObject);
+
+        }
+    }
 
     /* Movement Functions */
     public void MoveTo(Vector2 NewPosition) // Sets the entity's position to that Vector2 within the boundaries
@@ -135,6 +186,8 @@ public class Entity : MonoBehaviour
             Math.Clamp(NewPosition.x, -_settings.Boundaries.x, _settings.Boundaries.x),
             Math.Clamp(NewPosition.y, -_settings.Boundaries.y, _settings.Boundaries.y)
         );
+
+        NewDestination();
     }
     public void MoveBy(Vector2 AddPosition) // Adds the Vector2 to the entity's position
     {
@@ -152,6 +205,8 @@ public class Entity : MonoBehaviour
     public void MoveExit(Vector2 NewPosition) // Sets the entity's position to that Vector2 past boundaries
     {
         destination = NewPosition;
+
+        NewDestination();
     }
     
     public void SetPosition(Vector2 NewPosition) // Sets the entity's position to that Vector2 without taking into account SPD
@@ -168,7 +223,7 @@ public class Entity : MonoBehaviour
     public void Look()
     {
         unLook();
-        transform.rotation = Quaternion.Euler(0, 0, transform.CompareTag("Player") ? 0 : 180);
+        RefreshAngle(defaultAngle());
     }
     public void Look(Vector2 Position)
     {
@@ -178,7 +233,7 @@ public class Entity : MonoBehaviour
     public void Look(float Angle)
     {
         unLook();
-        transform.rotation = Quaternion.Euler(0, 0, Angle + (transform.CompareTag("Player") ? 0 : 180));
+        RefreshAngle(Angle + defaultAngle());
     }
     public void Look(Vector2 Position, float Angle)
     {
@@ -199,6 +254,12 @@ public class Entity : MonoBehaviour
     }
 
     /* Entity Functions */
+
+    // Returns the default unchanged angle of the entity
+    private float defaultAngle()
+    {
+        return transform.CompareTag("Player") ? 0 : 180;
+    }
 
     // Player functions
     public Ability AddAbility(string component)
@@ -227,6 +288,7 @@ public class Entity : MonoBehaviour
             HealthBar.gameObject.SetActive(false);
         }
 
+        // kill tweens
         Destroy(gameObject);
     }
     public float Damage(float dmg, Entity? Caster) // Called when the entity is damaged by another, returns excess
@@ -330,7 +392,7 @@ public class Entity : MonoBehaviour
     // Shoot Functions
     public Projectile Shoot(GameObject projectile, float spd, float angle) // Creates a projectile that moves at an angle
     {
-        angle += transform.eulerAngles.z;
+        angle += Angle;
         string target = transform.tag == "Player" ? "Enemy" : "Player";
         Projectile Component = Game.Shoot(projectile, position, target, spd, angle);
         Component.Caster = this;
