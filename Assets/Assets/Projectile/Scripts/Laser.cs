@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
@@ -26,7 +27,6 @@ public class Laser : MonoBehaviour
     public void Begin(float Duration)
     {
         temp.SetFloat("_Size", transform.localScale.x);
-        temp.SetFloat("_Elapsed", 0);
         temp.SetTexture("_Texture", Texture);
         temp.SetFloat("_Opacity", Opacity);
         temp.SetFloat("_Speed", Speed);
@@ -37,8 +37,10 @@ public class Laser : MonoBehaviour
     }
     private IEnumerator Timeline(float Duration)
     {
+        temp.SetFloat("_Elapsed", 0);
         float transition = Mathf.Min(0.5f, Duration/2);
         float wait = Duration - transition * 2;
+
         DOTween.To(
             () => 0.0f,
             x => temp.SetFloat("_Elapsed", x), 1.0f, transition

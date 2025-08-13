@@ -29,6 +29,7 @@ public class Ability : MonoBehaviour
     /*<----------------Stats---------------->*/
     public InputAction input = new InputAction(); // keybinds
     /*<-----------------Misc---------------->*/
+    protected Transform entities = null!;
     protected Entity entity = null!;
     protected Coroutine timeline = null!;
 
@@ -48,7 +49,8 @@ public class Ability : MonoBehaviour
     public void Init()
     {
         // init variables
-        entity = gameObject.GetComponent<Entity>();
+        entities = GameObject.FindGameObjectWithTag("Entities").transform;
+        entity = GetComponent<Entity>();
         timeline = StartCoroutine(Timeline());
 
         // init icon if not null
@@ -95,5 +97,33 @@ public class Ability : MonoBehaviour
 
         background.enabled = false;
         text.enabled = false;
+    }
+
+    /*<------------Ability Functions----------->*/
+    // Compares the distance between each enemy entity
+    // Returns the closest enemy to the player
+    public Entity? getClosest()
+    {
+        Entity? closest = null;
+        float? distance = null;
+
+        foreach (var enemy in entities.GetComponentsInChildren<Entity>())
+        {
+            if (enemy.CompareTag(transform.tag)) { continue; }
+
+            var dist = (enemy.Position - entity.Position).magnitude;
+
+            if (distance!=null && distance > dist) { continue; }
+            closest = enemy;
+            distance = dist;
+        }
+
+        return closest;
+    }
+
+    // Returns true or false depending on the chance value
+    public bool Random(float chance)
+    {
+        return UnityEngine.Random.Range(0f, 100f) < chance;
     }
 }

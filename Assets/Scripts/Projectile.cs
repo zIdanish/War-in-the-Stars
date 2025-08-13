@@ -23,8 +23,8 @@ public class Projectile : MonoBehaviour
     public Vector2 Position { get; private set; } // current projectile position
     public Vector2 Direction { get; private set; } // projectile facing & moving direction
     /*<----------------Config--------------->*/
-    public bool DISABLE_DELETE { get; protected set; } = false; // set to true to prevent self delete
-    public bool DISABLE_MOVE { get; protected set; } = false; // disable moving
+    public bool DISABLE_DELETE = false; // set to true to prevent self delete
+    public bool DISABLE_MOVE = false; // disable moving
     /*<-----------------Misc---------------->*/
     private float? DONT_DELETE = 0; // same as disable delete but to prevent the projectile from killing itself on spawn
     protected float elapsed = 0; // time elapsed since projectile creation
@@ -138,7 +138,15 @@ public class Projectile : MonoBehaviour
     {
         Vector2 diff = (destination - origin);
         diff.Normalize();
-        Direction = diff;
+
+        MoveBy(diff);
+    }
+
+    // Moves the projectile towards the direction
+    // --> Does not stop until leaving the boundaries
+    public void MoveBy(Vector2 unit)
+    {
+        Direction = unit;
 
         // set projectile direction
         float angle = (Mathf.Atan2(Direction.y, Direction.x)) * Mathf.Rad2Deg;
@@ -163,7 +171,7 @@ public class Projectile : MonoBehaviour
         // tween by adding/substracting to the original SPD instead of setting
         return DOTween.To(
             () => 0f,
-            x => { SPD += x - proxy; proxy = x; }, 1.0f, time
+            x => { SPD += (x - proxy); proxy = x; }, change, time
         ).SetEase(Ease.OutQuad);
     }
 }

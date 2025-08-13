@@ -501,16 +501,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   EntityLimit: 25
-  PlayerHealth: {fileID: 0}
-  BossHealth: {fileID: 0}
   Warning: {fileID: 7273603376073009058, guid: d789432b16245344388b76dec3b4bbe2, type: 3}
+  Bomb: {fileID: 1004954930304050588, guid: 360856304399d2847b7dbb9439260e3b, type: 3}
   Goon1: {fileID: 65864194826999904, guid: a8859a480382a8441aafd88e09621f6e, type: 3}
   Goon2: {fileID: 65864194826999904, guid: e1b54a214afc5ef488b7009d863745ef, type: 3}
+  Goon3: {fileID: 7107605801089795620, guid: fa0d0e149e2e90047ae6e98f946bb20b, type: 3}
   Goon4: {fileID: 8115248540133433634, guid: 636aa721457ca1d4b95baa8838b56a3c, type: 3}
   Goon5: {fileID: 3193031865735052058, guid: 33afe07d2b9a21642a630084333a12eb, type: 3}
+  Goon6: {fileID: 5792535382849953793, guid: 4a2043661f891ef4fa7652609549502a, type: 3}
   GoonBoss: {fileID: 6278330309585606411, guid: e08501f0d9f2314449898e39b2693a73, type: 3}
   HealOrb: {fileID: 1591929494974289442, guid: ea8c6b622ffc7334d8b97368385f2251, type: 3}
-  PlayerBullet: {fileID: 8749346940242777438, guid: 3a1b82f70a3e4414689f91e363575b1c, type: 3}
+  Asteroid: {fileID: 7273603376073009058, guid: 797f3eb6e250116459da5bdaca28ff3c, type: 3}
+  PlayerProjectile: {fileID: 8749346940242777438, guid: 3a1b82f70a3e4414689f91e363575b1c, type: 3}
+  PlayerBullet: {fileID: 1266743236956514637, guid: 761b0187ef5d90f4b824926b6b9f1207, type: 3}
 --- !u!114 &803929164
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -556,8 +559,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   EntityLimit: 50
-  PlayerHealth: {fileID: 0}
-  BossHealth: {fileID: 0}
   Warning: {fileID: 0}
   Goon1: {fileID: 0}
   Goon2: {fileID: 0}
@@ -702,7 +703,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 50
+  m_SortingOrder: 999
   m_Sprite: {fileID: 21300000, guid: b34098a0fac2dd941b36e92edd9597de, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -725,6 +726,7 @@ GameObject:
   - component: {fileID: 963194228}
   - component: {fileID: 963194227}
   - component: {fileID: 963194226}
+  - component: {fileID: 963194229}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -806,6 +808,50 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &963194229
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 963194225}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_RenderShadows: 1
+  m_RequiresDepthTextureOption: 2
+  m_RequiresOpaqueTextureOption: 2
+  m_CameraType: 0
+  m_Cameras: []
+  m_RendererIndex: -1
+  m_VolumeLayerMask:
+    serializedVersion: 2
+    m_Bits: 1
+  m_VolumeTrigger: {fileID: 0}
+  m_VolumeFrameworkUpdateModeOption: 2
+  m_RenderPostProcessing: 0
+  m_Antialiasing: 0
+  m_AntialiasingQuality: 2
+  m_StopNaN: 0
+  m_Dithering: 0
+  m_ClearDepth: 1
+  m_AllowXRRendering: 1
+  m_AllowHDROutput: 1
+  m_UseScreenCoordOverride: 0
+  m_ScreenSizeOverride: {x: 0, y: 0, z: 0, w: 0}
+  m_ScreenCoordScaleBias: {x: 0, y: 0, z: 0, w: 0}
+  m_RequiresDepthTexture: 0
+  m_RequiresColorTexture: 0
+  m_Version: 2
+  m_TaaSettings:
+    quality: 3
+    frameInfluence: 0.1
+    jitterScale: 1
+    mipBias: 0
+    varianceClampScale: 0.9
+    contrastAdaptiveSharpening: 0
 --- !u!1 &1088673514
 GameObject:
   m_ObjectHideFlags: 0
@@ -1949,7 +1995,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -312.49997, y: 206.3}
+  m_AnchoredPosition: {x: -312.5, y: 206.3}
   m_SizeDelta: {x: -632.293, y: -419.969}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2069760762

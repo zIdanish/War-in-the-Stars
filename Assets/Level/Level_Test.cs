@@ -5,13 +5,18 @@ using UnityEngine;
 public class Level_Test : GameManager
 {
     /*<-------------------Enemies------------------>*/
+    public GameObject Bomb;
     public GameObject Goon1;
     public GameObject Goon2;
+    public GameObject Goon3;
     public GameObject Goon4;
     public GameObject Goon5;
+    public GameObject Goon6;
     public GameObject GoonBoss;
     /*<-----------------Projectiles---------------->*/
     public GameObject HealOrb;
+    public GameObject Asteroid;
+    public GameObject PlayerProjectile;
     public GameObject PlayerBullet;
 
     /* Init Variables */
@@ -23,18 +28,18 @@ public class Level_Test : GameManager
     /* Player Manager */
     protected override void PlayerAbilities()
     {
-        AB_Default AB_Base = (AB_Default)player.AddAbility("AB_Default");
+        var AB_Base = (PSV_Homing)player.AddAbility("PSV_Homing");
         AB_Base.Projectile = PlayerBullet;
 
-        AB_Big AB_1 = (AB_Big)player.AddAbility("AB_Big", "q");
-        AB_1.Projectile = PlayerBullet;
+        var AB_1 = (AB_Big)player.AddAbility("AB_Big", "q");
+        AB_1.Projectile = PlayerProjectile;
         AB_1.icon = UI.Find("Ability1");
     }
 
     /* Wave Manager */
     protected override IEnumerator NewWave()
     {
-        IEnumerator Wave = TestWave();
+        IEnumerator Wave = BossWave();
 
         // Create Wave
         yield return StartCoroutine(Wave);
@@ -42,8 +47,13 @@ public class Level_Test : GameManager
     private IEnumerator TestWave()
     {
         // Goon 2
+        /*float x = Random.Range(-60.0f, 60.0f);
+        SpawnEnemy(Goon5, new Vector2(x, bounds.y + 20), new Vector2(x, bounds.y - Random.Range(5.0f, 30.0f)));*/
+
         float x = Random.Range(-60.0f, 60.0f);
-        SpawnEnemy(Goon5, new Vector2(x, bounds.y + 20), new Vector2(x, bounds.y - Random.Range(5.0f, 30.0f)));
+        SpawnEnemy(Bomb, new Vector2(x, bounds.y + 20));
+
+        var asteroid = Shoot(Asteroid, new Vector2(x, 0), "Player", 75, 0);
 
         yield return new WaitForSeconds(2f);
     }

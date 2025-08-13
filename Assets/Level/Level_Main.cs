@@ -22,7 +22,7 @@ public class Level_Main : GameManager
     /* Player Manager */
     protected override void PlayerAbilities()
     {
-        AB_Default AB_Base = (AB_Default)player.AddAbility("AB_Default");
+        PSV_Default AB_Base = (PSV_Default)player.AddAbility("AB_Default");
         AB_Base.Projectile = PlayerBullet;
 
         AB_Big AB_1 = (AB_Big)player.AddAbility("AB_Big", "q");

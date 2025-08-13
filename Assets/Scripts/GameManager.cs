@@ -21,8 +21,8 @@ public class GameManager : MonoBehaviour
     [NonSerialized] public Entity player = null!;
     public int score { get; protected set; } = 0;
     protected Vector2 bounds = new Vector2();
-    public Transform PlayerHealth = null!;
-    public Transform BossHealth = null!;
+    [NonSerialized] public Transform PlayerHealth = null!;
+    [NonSerialized] public Transform BossHealth = null!;
 
     // Prefabs
     public GameObject Warning = null!;
@@ -149,15 +149,27 @@ public class GameManager : MonoBehaviour
     }
 
     // Spawns an enemy at the position, and moves towards target position
-    public Entity? SpawnEnemy(GameObject enemy, Vector2 position, Vector2 targetPosition)
+    public Entity? SpawnEnemy(GameObject enemy, Vector2 position)
     {
         if (Ended || EntityCount > EntityLimit) { return null; }
         GameObject Enemy = Instantiate(enemy);
         Entity Component = Enemy.GetComponent<Entity>();
         Component.SetPosition(position);
-        Component.MoveTo(targetPosition);
+        Component.MoveExit(position);
         Enemy.transform.SetParent(Entities);
         Enemy.GetComponent<SpriteRenderer>().sortingOrder = _settings.zEnemy;
+        return Component;
+    }
+    public Entity? SpawnEnemy(GameObject enemy, Vector2 position, Vector2 targetPosition)
+    {
+        if (Ended) { return null; }
+
+        Entity? Component = SpawnEnemy(enemy, position);
+        if (Component != null)
+        {
+            Component.MoveTo(targetPosition);
+        }
+
         return Component;
     }
     public Entity? SpawnEnemy(GameObject enemy, Vector2 position, Vector2 targetPosition, Action<Entity> action)

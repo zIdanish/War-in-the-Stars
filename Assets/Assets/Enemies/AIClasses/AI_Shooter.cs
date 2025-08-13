@@ -18,10 +18,7 @@ public class AI_Shooter : AI
     {
         // Wait until the entity stops moving
 
-        while (entity.Moving)
-        {
-            yield return null;
-        }
+        yield return StartCoroutine(WaitUntilStationary());
 
         /*<-------------------------------------->*/
         // Set the entity's base Position

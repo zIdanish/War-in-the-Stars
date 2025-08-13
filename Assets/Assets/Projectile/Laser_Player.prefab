@@ -14,11 +14,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -6987726904569939697, guid: 8b0f6ab008263a64ebb00875745ace87, type: 3}
       propertyPath: TextureColor.g
-      value: 0
+      value: 0.49019608
       objectReference: {fileID: 0}
     - target: {fileID: -6987726904569939697, guid: 8b0f6ab008263a64ebb00875745ace87, type: 3}
       propertyPath: TextureColor.r
-      value: 0.49019608
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3781742406984750964, guid: 8b0f6ab008263a64ebb00875745ace87, type: 3}
       propertyPath: m_Color.b
@@ -26,15 +26,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3781742406984750964, guid: 8b0f6ab008263a64ebb00875745ace87, type: 3}
       propertyPath: m_Color.g
-      value: 0
+      value: 0.49019608
       objectReference: {fileID: 0}
     - target: {fileID: 3781742406984750964, guid: 8b0f6ab008263a64ebb00875745ace87, type: 3}
       propertyPath: m_Color.r
-      value: 0.49019608
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7273603376073009058, guid: 8b0f6ab008263a64ebb00875745ace87, type: 3}
       propertyPath: m_Name
-      value: Laser_Enemy
+      value: Laser_Player
       objectReference: {fileID: 0}
     - target: {fileID: 8822635086208531137, guid: 8b0f6ab008263a64ebb00875745ace87, type: 3}
       propertyPath: m_LocalPosition.x

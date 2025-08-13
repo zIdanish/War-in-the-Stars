@@ -107,6 +107,6 @@ public class Cursor : MonoBehaviour
     {
         // Unbound
         Bounded = false;
-        Sprite.sortingOrder = 50;
+        Sprite.sortingOrder = 999;
     }
 }

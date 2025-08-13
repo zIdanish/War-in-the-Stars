@@ -31,6 +31,9 @@ public class Entity : MonoBehaviour
     [SerializeField] private float inv = 0; // invulnerability window
     [SerializeField] private int score = 0;
 
+    // Events
+    public event Action<Entity?>? OnDeath;
+
     // Easings
     [SerializeField] private Ease Easing = Ease.OutQuad; // entity movement & stat easing
 
@@ -161,7 +164,7 @@ public class Entity : MonoBehaviour
             x =>
             {
                 transform.rotation = Quaternion.Slerp(start, end, x);
-                Direction = new Vector2(transform.up.x, transform.up.y);
+                Direction = new Vector2(transform.right.x, transform.right.y);
                 Angle = Mathf.Lerp(base_angle, angle, x);
             },
             1f,
@@ -314,12 +317,13 @@ public class Entity : MonoBehaviour
             Game.AddScore(score);
         }
 
-        if (HealthBar != null)
+        if (HealthBar != null) // Set healthbar HP
         {
             HealthBar.gameObject.SetActive(false);
         }
 
-        // kill tweens
+        OnDeath?.Invoke(Caster);
+
         Destroy(gameObject);
     }
     public float Damage(float dmg, Entity? Caster) // Called when the entity is damaged by another, returns excess
@@ -410,7 +414,6 @@ public class Entity : MonoBehaviour
             Tween undo = DOTween.To(
                 () => Offsets[stat][index],
                 x => {
-                    Debug.Log(index);
                     Offsets[stat][index] = x;
                 }, 0f, time
             ).SetEase(Easing).SetLink(gameObject);

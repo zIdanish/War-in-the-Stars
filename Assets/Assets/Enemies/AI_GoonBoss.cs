@@ -123,13 +123,12 @@ public class AI_GoonBoss : AI
         yield return Call(WaitUntilStationary());
 
         // warn of attack
-        var Warning = Game.Warn(1.25f, 10, transform, 100);
-        while (!Warning.IsDestroyed()) { yield return null; }
-        yield return new WaitForSeconds(1f);
+        Game.Warn(1.25f, 10, transform, 100);
+        yield return new WaitForSeconds(1.75f);
 
         // snipe a lot
         for (float i = 0; i < duration; i+=.15f) {
-            Snipe();
+            Snipe(25);
             yield return new WaitForSeconds(.15f);
         }
 
@@ -160,7 +159,7 @@ public class AI_GoonBoss : AI
         {
             yield return new WaitForSeconds(1f);
             for (int j = 0; j < 3; j++) {
-                Snipe();
+                Snipe(15);
                 yield return new WaitForSeconds(.33f);
             }
         }
@@ -218,11 +217,11 @@ public class AI_GoonBoss : AI
         // locks at the player, send a warning
         entity.Look(player.transform);
         entity.MoveTo(entity.Position + (entity.Position - player.Position) * 5f);
-        var Warning = Game.Warn(foreswing + .25f, 10, transform, 100);
-        while (!Warning.IsDestroyed()) { yield return null; }
+        Game.Warn(foreswing + .25f, 10, transform, 100);
+
         var undo_1 = entity.TweenStat("spd", 1 - entity.SPD, foreswing);
 
-        yield return new WaitForSeconds(foreswing);
+        yield return new WaitForSeconds(foreswing + .25f);
 
         // Lunge
         var undo_2 = entity.TweenStat("spd", speed, backswing);
@@ -323,7 +322,7 @@ public class AI_GoonBoss : AI
             yield return new WaitForSeconds(.1f);
         }
     }
-    private void Snipe()
+    private void Snipe(float speed)
     {
         var player = Entity.getPlayer();
         if (player == null) { return; }
@@ -331,7 +330,7 @@ public class AI_GoonBoss : AI
         // x3 long bullet to the player
         for (int i = -15; i <= 15; i += 15)
         {
-            var bullet = (PJ_Damage)entity.Shoot(Projectile_Bullet, 25, player.Position);
+            var bullet = (PJ_Damage)entity.Shoot(Projectile_Bullet, speed, player.Position);
             bullet.SetPosition(entity.Position + (Vector2)entity.transform.right * i);
             bullet.transform.localScale *= 1.25f;
             bullet.DMG = entity.DMG;

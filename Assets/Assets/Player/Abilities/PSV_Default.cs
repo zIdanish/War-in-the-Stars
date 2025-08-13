@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AB_Default : Ability
+public class PSV_Default : Ability
 {
     /*<-----------------Stats---------------->*/
     public float Cooldown = .1f;
