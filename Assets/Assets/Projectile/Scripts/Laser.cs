@@ -8,6 +8,7 @@ public class Laser : MonoBehaviour
     public float Opacity;
     public float Speed;
     public Texture2D Texture;
+    public Color TextureColor;
     private Material temp;
     private SpriteRenderer sprite;
     private void Awake()
@@ -29,6 +30,7 @@ public class Laser : MonoBehaviour
         temp.SetTexture("_Texture", Texture);
         temp.SetFloat("_Opacity", Opacity);
         temp.SetFloat("_Speed", Speed);
+        temp.SetColor("_Color", TextureColor);
         sprite.enabled = true;
 
         StartCoroutine(Timeline(Duration));

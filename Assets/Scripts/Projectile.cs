@@ -155,7 +155,7 @@ public class Projectile : MonoBehaviour
     // Changes the object speed over the specified time
     // --> For regular speed change, just set the speed cause adding a function for that is too much effort now that I've made so many bullet patterns
     // --> if this was a company then good luck to that one guy having to replace every .SPD = # line
-    public Tween Accelerate(float change, float duration)
+    public Tween Accelerate(float change, float time)
     {
         // proxy float for creating the delta value to change the speed
         float proxy = 0f;
@@ -163,7 +163,7 @@ public class Projectile : MonoBehaviour
         // tween by adding/substracting to the original SPD instead of setting
         return DOTween.To(
             () => 0f,
-            x => { SPD += x - proxy; proxy = x; }, 1.0f, duration
+            x => { SPD += x - proxy; proxy = x; }, 1.0f, time
         ).SetEase(Ease.OutQuad);
     }
 }

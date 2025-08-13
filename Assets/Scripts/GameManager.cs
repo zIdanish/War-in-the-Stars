@@ -254,6 +254,20 @@ public class GameManager : MonoBehaviour
             yield return null;
         }
     }
+    public IEnumerator Warn(float duration, Transform transform, float dist)
+    {
+        GameObject Alert = Instantiate(Warning);
+        Alert.transform.SetParent(Projectiles);
+        Laser Component = Alert.GetComponent<Laser>();
+        Component.Begin(duration);
+
+        while (!Alert.IsDestroyed())
+        {
+            Alert.transform.localPosition = transform.localPosition + transform.up*dist;
+            Alert.transform.localRotation = transform.localRotation;
+            yield return null;
+        }
+    }
     public void Warn(float duration, Vector2 position)
     {
         GameObject Alert = Instantiate(Warning);
@@ -272,5 +286,10 @@ public class GameManager : MonoBehaviour
 
         Alert.transform.position = position;
         Alert.transform.rotation = Quaternion.Euler(0, 0, angle + 90);
+    }
+    // Selects a random coroutine in the arguments to activate
+    public Coroutine RandomPattern(params IEnumerator[] patterns)
+    {
+        return StartCoroutine(patterns[UnityEngine.Random.Range(0, patterns.Length)]);
     }
 }

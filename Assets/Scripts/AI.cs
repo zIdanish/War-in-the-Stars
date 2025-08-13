@@ -13,10 +13,13 @@ public class AI : MonoBehaviour
 {
     /*<------------Stats----------->*/
     protected Entity entity; // the entity this AI class is attached to
+    /*<------------Misc----------->*/
+    protected GameManager Game = null!; // mandatory GameManager
 
     /*<------------Init Functions----------->*/
     protected void Init()
     {
+        Game = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameManager>();
         entity = GetComponent<Entity>();
         StartCoroutine(Timeline()); // Start the timeline
     }
@@ -62,6 +65,12 @@ public class AI : MonoBehaviour
         {
             yield return null;
         }
+    }
+
+    // Selects a random coroutine in the arguments to activate
+    public Coroutine RandomTask(params IEnumerator[] tasks)
+    {
+        return StartCoroutine(tasks[UnityEngine.Random.Range(0, tasks.Length)]);
     }
 
     // proxy for safely calling coroutines

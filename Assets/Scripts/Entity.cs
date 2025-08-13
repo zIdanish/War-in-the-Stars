@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Reflection;
+using System.Xml;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -23,6 +24,7 @@ public class Entity : MonoBehaviour
 
     /*<-----------------Stats---------------->*/
     // --> set these in the entity prefab
+    // --> unused in actuality
     [SerializeField] private float hp = 100;
     [SerializeField] private float spd = 65;
     [SerializeField] private float dmg = 10;
@@ -32,6 +34,7 @@ public class Entity : MonoBehaviour
     // Entity Vector2 info, destination is the target position the entity is moving towards.
     private SpriteRenderer sprite = null!;
     private Vector2 destination;
+    private Vector2 last_destination;
     private Vector2 position;
 
     // Orientation variables
@@ -41,14 +44,27 @@ public class Entity : MonoBehaviour
     private Transform? target_lock;
 
     // other stats info
+    private float last_spd;
     public Transform? HealthBar { get; private set; } // healthbar to display HP on (optional), mainly for bosses and the player
     private float invulnerable = 0; // 0 means vulnerable, anything above is invulnerable (in seconds)
     public Dictionary<string, float> Default { get; private set; } = new Dictionary<string, float> { }; // Default stats of the entity
+    public Dictionary<string, Dictionary<Guid, float>> Offsets { get; private set; } = new Dictionary<string, Dictionary<Guid, float>> { }; // Offset stats of the entity from tweens
     /*<------------Public Stats----------->*/
-    // --> i wish i knew about { get; private set; } earlier SO I DONT HAV ETO DO THI_Toihfesj;ierpjsgklegf
-    public float HP { get { return hp; } }
-    public float SPD { get { return spd; } }
-    public float DMG { get { return dmg; } }
+    // get stat from Default + Offset
+    public float HP => GetStat("HP");
+    public float SPD => GetStat("SPD");
+    public float DMG => GetStat("DMG");
+    public float INV => GetStat("INV");
+    private float GetStat(string stat) {
+        var value = Default.GetValueOrDefault(stat, 0);
+        
+        foreach (var change in Offsets[stat].Values)
+        {
+            value += change;
+        }
+
+        return value;
+    } 
     public Vector2 Position { get { return position; } }
     public Vector2 Destination { get { return destination; } }
     public bool Moving { get { return Mathf.Abs(position.x - destination.x) > .1f || Mathf.Abs(position.y - destination.y) > .1f; } }
@@ -64,15 +80,21 @@ public class Entity : MonoBehaviour
     /*<------------Init Functions----------->*/
     private void Awake()
     {
+        // set default stats
+        SetStat("HP");
+        SetStat("SPD");
+        SetStat("DMG");
+        SetStat("INV");
+
+        // init variables
         Game = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameManager>();
         sprite = GetComponent<SpriteRenderer>();
         last_angle = defaultAngle();
+        Angle = last_angle;
+        last_spd = SPD;
 
-        // set default stats
-        Default["HP"] = hp;
-        Default["SPD"] = spd;
-        Default["DMG"] = dmg;
-        Default["INV"] = inv;
+        var PLEASE_STOP_GIVING_ME_WARNINGS = dmg; // so i dont get a  stupid warning from unity
+        var HWEJOWRHGUYIGISFGJFKBUJFBEWKUIBJFUIBJWFIE = spd; // again
 
         // set default position
         position = (Vector2)transform.position;
@@ -80,9 +102,11 @@ public class Entity : MonoBehaviour
         {
             destination = position;
         }
+        last_destination = destination;
     }
     private void Update()
     {
+        NewDestination();
         RefreshStats();
         InvulnerableSprite();
         UpdateAngle();
@@ -156,8 +180,12 @@ public class Entity : MonoBehaviour
     }
     private void NewDestination()
     {
-        if (position != destination)
+        var spd = SPD;
+        if (last_destination != destination || spd != last_spd)
         {
+            last_destination = destination;
+            last_spd = spd;
+
             // Cancels any previous tweens
             if (MOVING_TO_DESTINATION != null)
             {
@@ -326,55 +354,95 @@ public class Entity : MonoBehaviour
             Game.DisplayHP(HealthBar, hp, Default["HP"]);
         }
     }
-    public Action Stat(string stat, float change) // Change the stat by number, return the function to reset the stat
+    // Change the stat of the entity by float, return the function to reset the stat
+    // Works by creating a new GUID index for the Offset Stat
+    // Removes the index once reset
+    public Action Stat(string stat, float change)
     {
-        stat = stat.ToLower();
-        FieldInfo field = GetType().GetField(stat, BindingFlags.Instance | BindingFlags.NonPublic);
+        Guid index = Guid.NewGuid();
+        stat = stat.ToUpper();
+        Offsets[stat][index] = change; // my life
 
-        // check if the field is not null and is a float
-        if (field == null) { Debug.Log($"Field - {stat} - does not exist"); return () => { return; }; }
-        if (field.FieldType != typeof(float)) { Debug.Log($"Stat - {stat} - is not a float"); return () => { return; }; }
+        return () => { Offsets[stat].Remove(index); };
+    }
+    // Change the stat of the entity for a limited time
+    public void Stat(string stat, float change, float duration)
+    {
+        var reset = Stat(stat, change);
 
-        // set value
-        float value = (float)field.GetValue(this);
-        if ((value + change) < 0)
-        {
-            change = -value;
+        IEnumerator ResetStat() {
+            yield return new WaitForSeconds(duration);
+            reset();
         }
 
-        field.SetValue(this, value + change);
-
-        return () => { ResetStat(field, change); };
+        StartCoroutine(ResetStat());
     }
-    public void Stat(string stat, float change, float duration) // Change the stat for a limited time
+    // Tweens stat change the stat by number, return the function to reset the stat
+    public Func<float?, Coroutine> TweenStat(string stat, float change, float time)
     {
+        Guid index = Guid.NewGuid();
+        stat = stat.ToUpper();
+        Offsets[stat][index] = 0;
+
+        float elapsed = 0f;
+
+        // tween by adding/substracting to the original stat instead of setting
+        Tween add = DOTween.To(
+            () => 0f,
+            x => {
+                Offsets[stat][index] = x;
+                elapsed += Time.deltaTime;
+            }, change, time
+        ).SetEase(Ease.OutQuad).SetLink(gameObject);
+
+        // function to reset the stats
+        // --> so janky i hate thisv  i hate DICTIONARIES
+        Coroutine reset(float? custom)
+        {
+            float time = (float)(custom != null ? custom : elapsed);
+
+            add.Kill(); // --> I FOUND OUT NOT HAVING THIS WAS THE REASON WHY IT WONT SLOW BACK DOWN AAAAAAAAAAAAAAAAAAAAAAAAAAAA
+            // --> UNITY SUCKSSSSS
+
+            Tween undo = DOTween.To(
+                () => Offsets[stat][index],
+                x => {
+                    Offsets[stat][index] = x;
+                }, 0f, time
+            ).SetEase(Ease.OutQuad).SetLink(gameObject);
+
+            IEnumerator remove()
+            {
+                yield return new WaitForSeconds(time);
+
+                if (!Offsets[stat].ContainsKey(index)) { yield break; }
+                yield return null;
+
+                undo.Kill();
+                Offsets[stat].Remove(index);
+            }
+
+            return StartCoroutine(remove());
+        }
+
+        return reset;
+    }
+
+    // Set the stat as a default stat (used only in Start/Awake)
+    private void SetStat(string stat)
+    {
+        var index = stat.ToUpper();
+        stat = stat.ToLower();
+
         FieldInfo field = GetType().GetField(stat, BindingFlags.Instance | BindingFlags.NonPublic);
 
         // check if the field is not null and is a float
         if (field == null) { Debug.Log($"Field - {stat} - does not exist"); return; }
         if (field.FieldType != typeof(float)) { Debug.Log($"Stat - {stat} - is not a float"); return; }
 
-        // set value
-        float value = (float)field.GetValue(this);
-        if ((value + change) < 0)
-        {
-            change = -value;
-        }
-
-        field.SetValue(this, value + change);
-
-        StartCoroutine(ResetStat(field, change, duration));
-    }
-    private void ResetStat(FieldInfo field, float change)
-    {
-        float value = (float)field.GetValue(this);
-        field.SetValue(this, value - change);
-    }
-    private IEnumerator ResetStat(FieldInfo field, float change, float duration)
-    {
-        yield return new WaitForSeconds(duration);
-        float value = (float)field.GetValue(this);
-        field.SetValue(this, value - change);
+        var value = (float)field.GetValue(this);
+        Default[index] = value;
+        Offsets[index] = new Dictionary<Guid, float> { };
     }
     public void SetInvulnerable(float duration)
     {

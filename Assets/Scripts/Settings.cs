@@ -19,8 +19,9 @@ public class _settings : MonoBehaviour
     // leave zindex above zEnemyProjectile empty for warning projectiles
 
     /* Automatic Variables */
-    public static Vector2 Screen { get { float y = Camera.main.orthographicSize; return new Vector2(y/9*16, y); } } // Full screen size
-    public static Vector2 Boundaries { get { float size = Camera.main.orthographicSize - BoundaryShear; return new Vector2(size, size); } } // Boundary Size
+    public static float Height { get { return Camera.main.orthographicSize; } }
+    public static Vector2 Screen { get { return new Vector2(Height / 9*16, Height); } } // Full screen size
+    public static Vector2 Boundaries { get { float size = Height - BoundaryShear; return new Vector2(size, size); } } // Boundary Size
 
     /* Debug */
     public static bool debug_placeholder = true; // --> unused, lazy to remove these three lines

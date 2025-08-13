@@ -61,7 +61,6 @@ public class PJ_Laser : Projectile
             {
                 newPosition += (Vector2)DISP;
             }
-            ;
 
             SetPosition(newPosition);
         }

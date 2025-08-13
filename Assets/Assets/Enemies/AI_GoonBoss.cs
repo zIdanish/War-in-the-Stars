@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SocialPlatforms;
 using UnityEngine.UIElements;
 #nullable enable
 public class AI_GoonBoss : AI
@@ -34,7 +35,7 @@ public class AI_GoonBoss : AI
         /*<-------------------------------------->*/
         // Start the Attack Behaviour
 
-        Coroutine AttackBehaviour = Call(Intro());
+        Coroutine AttackBehaviour = Call(Patterns());
 
         yield return AttackBehaviour;
     }
@@ -80,9 +81,81 @@ public class AI_GoonBoss : AI
         }
 
         entity.Look();
+
+        Call(Patterns());
+    }
+
+    private IEnumerator Patterns()
+    {
+        while (!entity.IsDestroyed())
+        {
+
+            yield return RandomTask(
+                // attack 1: Lunge at the player, make a sphere pattern
+                Lunge(1, 50, 1),
+                // attack 2: Create a spiral and laser the player once
+                SpiralLaser(),
+                // attack 3: Fast circle borders and snipes at the player repeatedly
+                BorderSnipe(),
+                // attack 4: Middle of the screen the roulette around the screen, spray at the player
+                LaserRouletteSpray()
+            );
+        }
     }
 
     /*<----------------Pattern Attacks--------------->*/
+    private IEnumerator LaserRouletteSpray()
+    {
+        yield return null;
+    }
+    private IEnumerator BorderSnipe()
+    {
+        yield return null;
+    }
+    private IEnumerator SpiralLaser()
+    {
+        yield return null;
+    }
+    private IEnumerator Lunge(float foreswing, float speed, float backswing)
+    {
+        var player = Entity.getPlayer();
+        if (player == null) { yield break; }
+
+        // locks at the player, send a warning
+        entity.Look(player.transform);
+        entity.MoveTo(entity.Position + (entity.Position - player.Position) * 5f);
+        StartCoroutine(Game.Warn(foreswing, transform, 100));
+        var undo_1 = entity.TweenStat("spd", 1 - entity.SPD, foreswing);
+
+        yield return new WaitForSeconds(foreswing);
+
+        // Lunge
+        var undo_2 = entity.TweenStat("spd", speed, backswing);
+        var direction = (player.Position - entity.Position);
+        direction.Normalize();
+
+        entity.Look(player.Position);
+        entity.MoveExit(player.Position + _settings.Height * 2 * direction);
+
+        yield return new WaitForSeconds(.1f);
+
+        // Sphere bullet pattern x3 when moving
+        for (int i = 0; i < 3; i++)
+        {
+            Sphere(i * 15);
+            yield return new WaitForSeconds(.1f);
+        }
+
+        yield return StartCoroutine(WaitUntilStationary());
+
+        undo_1(0); undo_2(0);
+
+        entity.Look();
+        entity.SetPosition(new Vector2(BasePosition.x, _settings.Height + 30));
+        entity.MoveTo(BasePosition);
+
+        yield return StartCoroutine(WaitUntilStationary());
+    }
     private IEnumerator ZigZags(int count)
     {
         for (int i = 0; i < count; i++)
@@ -107,10 +180,31 @@ public class AI_GoonBoss : AI
             yield return new WaitForSeconds(.333f);
         }
     }
+
     /*<----------------Projectile Presets--------------->*/
+    private void Sphere(float angle)
+    {
+        // create a sphere of bullets
+        for (float x = 0; x < 360; x += 30)
+        {
+            var bullet = (PJ_Damage)entity.Shoot(Projectile, 12.5f, x + angle);
+            bullet.transform.localScale *= 1.25f;
+            bullet.DMG = entity.DMG;
+        }
+    }
+    private void Spiral()
+    {
+        // 90 degrees bullet pattern
+        // rotate CW
+    }
+    private void Snipe()
+    {
+        // x3 long bullet to the player
+    }
     private void Spray(float angle)
     {
-        for (float x = -90; x < 90; x += 17.5f) {
+        for (float x = -90; x < 90; x += 17.5f)
+        {
             var bullet = (PJ_Damage)entity.Shoot(Projectile, 12.5f, x + angle);
             bullet.transform.localScale *= 1.25f;
             bullet.DMG = entity.DMG;

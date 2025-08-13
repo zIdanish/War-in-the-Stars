@@ -144,8 +144,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aba0e784dd86e334aa9b223bc9c67ef9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PIVOT: {x: 0, y: 0}
-  Warning: {fileID: 7273603376073009058, guid: d789432b16245344388b76dec3b4bbe2, type: 3}
+  PIVOT: {fileID: 0}
+  DURATION: 1
 --- !u!114 &-6987726904569939697
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -162,3 +162,4 @@ MonoBehaviour:
   Opacity: 1
   Speed: 20
   Texture: {fileID: 2800000, guid: ad719bdbfdc731d4c83c81ac6f5bd445, type: 3}
+  TextureColor: {r: 1, g: 1, b: 1, a: 0}
