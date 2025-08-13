@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1001 &3047074199880473425
+--- !u!1001 &1006372535595445624
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -8,18 +8,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 3572761757730763048, guid: 007c0b9564c2fdc44bb90a5a5f75561f, type: 3}
+      propertyPath: m_Offset.y
+      value: -2
+      objectReference: {fileID: 0}
     - target: {fileID: 4412031894215741312, guid: 007c0b9564c2fdc44bb90a5a5f75561f, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: 5273d798e457b134588a1a01706af585, type: 3}
-    - target: {fileID: 5748802934649636316, guid: 007c0b9564c2fdc44bb90a5a5f75561f, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 2.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 5748802934649636316, guid: 007c0b9564c2fdc44bb90a5a5f75561f, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 2.5
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 21300000, guid: a24eaa7656df0044b8938edb60671527, type: 3}
     - target: {fileID: 5748802934649636316, guid: 007c0b9564c2fdc44bb90a5a5f75561f, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -62,23 +58,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8125693464603410726, guid: 007c0b9564c2fdc44bb90a5a5f75561f, type: 3}
       propertyPath: hp
-      value: 12500
+      value: 150
       objectReference: {fileID: 0}
     - target: {fileID: 8125693464603410726, guid: 007c0b9564c2fdc44bb90a5a5f75561f, type: 3}
       propertyPath: dmg
-      value: 25
+      value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 8125693464603410726, guid: 007c0b9564c2fdc44bb90a5a5f75561f, type: 3}
       propertyPath: spd
-      value: 2
+      value: 14
       objectReference: {fileID: 0}
     - target: {fileID: 8125693464603410726, guid: 007c0b9564c2fdc44bb90a5a5f75561f, type: 3}
       propertyPath: score
-      value: 12500
+      value: 75
       objectReference: {fileID: 0}
     - target: {fileID: 9036611122958503002, guid: 007c0b9564c2fdc44bb90a5a5f75561f, type: 3}
       propertyPath: m_Name
-      value: Goon Boss
+      value: Goon4
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -86,25 +82,26 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 9036611122958503002, guid: 007c0b9564c2fdc44bb90a5a5f75561f, type: 3}
       insertIndex: -1
-      addedObject: {fileID: -3608479165609341800}
+      addedObject: {fileID: 2589030587220330947}
   m_SourcePrefab: {fileID: 100100000, guid: 007c0b9564c2fdc44bb90a5a5f75561f, type: 3}
---- !u!1 &6278330309585606411 stripped
+--- !u!1 &8115248540133433634 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 9036611122958503002, guid: 007c0b9564c2fdc44bb90a5a5f75561f, type: 3}
-  m_PrefabInstance: {fileID: 3047074199880473425}
+  m_PrefabInstance: {fileID: 1006372535595445624}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &-3608479165609341800
+--- !u!114 &2589030587220330947
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6278330309585606411}
+  m_GameObject: {fileID: 8115248540133433634}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 611a9a7f3912b734393b18a8523a6191, type: 3}
+  m_Script: {fileID: 11500000, guid: b8ea7b50268bb3443b5cfc2697855ab0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Projectile: {fileID: 1699499589198558219, guid: 7bc6ac80f69adac4c8a3bbfb90fd6560, type: 3}
-  Projectile_Bullet: {fileID: 1266743236956514637, guid: 31f30408000e04f4bbbb269bb8849755, type: 3}
-  Projectile_Laser: {fileID: 5833501255831245564, guid: f28d52db1414ed3408fa6207737bf9b3, type: 3}
+  Cooldown: 0.25
+  ProjectileSpeed: 20
+  Lifetime: 2
+  Projectile: {fileID: 1266743236956514637, guid: 31f30408000e04f4bbbb269bb8849755, type: 3}

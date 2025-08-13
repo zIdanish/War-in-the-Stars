@@ -506,6 +506,8 @@ MonoBehaviour:
   Warning: {fileID: 7273603376073009058, guid: d789432b16245344388b76dec3b4bbe2, type: 3}
   Goon1: {fileID: 65864194826999904, guid: a8859a480382a8441aafd88e09621f6e, type: 3}
   Goon2: {fileID: 65864194826999904, guid: e1b54a214afc5ef488b7009d863745ef, type: 3}
+  Goon4: {fileID: 8115248540133433634, guid: 636aa721457ca1d4b95baa8838b56a3c, type: 3}
+  Goon5: {fileID: 3193031865735052058, guid: 33afe07d2b9a21642a630084333a12eb, type: 3}
   GoonBoss: {fileID: 6278330309585606411, guid: e08501f0d9f2314449898e39b2693a73, type: 3}
   HealOrb: {fileID: 1591929494974289442, guid: ea8c6b622ffc7334d8b97368385f2251, type: 3}
   PlayerBullet: {fileID: 8749346940242777438, guid: 3a1b82f70a3e4414689f91e363575b1c, type: 3}
@@ -1947,7 +1949,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -312.5, y: 206.3}
+  m_AnchoredPosition: {x: -312.49997, y: 206.3}
   m_SizeDelta: {x: -632.293, y: -419.969}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2069760762

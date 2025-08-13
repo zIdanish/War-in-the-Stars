@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class AI_Goon2 : AI_Shooter
+public class AI_Goon3 : AI_Shooter
 {
     /*<-----------------Stats---------------->*/
     public GameObject Projectile;

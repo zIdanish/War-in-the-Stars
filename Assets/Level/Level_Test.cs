@@ -7,6 +7,8 @@ public class Level_Test : GameManager
     /*<-------------------Enemies------------------>*/
     public GameObject Goon1;
     public GameObject Goon2;
+    public GameObject Goon4;
+    public GameObject Goon5;
     public GameObject GoonBoss;
     /*<-----------------Projectiles---------------->*/
     public GameObject HealOrb;
@@ -32,23 +34,18 @@ public class Level_Test : GameManager
     /* Wave Manager */
     protected override IEnumerator NewWave()
     {
-       IEnumerator Wave = score < 500 ? BossWave() : FunnyWave();
+        IEnumerator Wave = TestWave();
 
-       // Create Wave
-       yield return StartCoroutine(Wave);
+        // Create Wave
+        yield return StartCoroutine(Wave);
     }
     private IEnumerator TestWave()
     {
-        yield return new WaitForSeconds(1f);
-
-        // Goon Boss
-        var boss = SpawnBoss(GoonBoss, new Vector2(0, bounds.y + 30), new Vector2(0, bounds.y - 30));
-
-        // Goon 1
+        // Goon 2
         float x = Random.Range(-60.0f, 60.0f);
-        SpawnEnemy(Goon1, new Vector2(x, bounds.y + 20), new Vector2(x, bounds.y - Random.Range(5.0f, 30.0f)));
+        SpawnEnemy(Goon5, new Vector2(x, bounds.y + 20), new Vector2(x, bounds.y - Random.Range(5.0f, 30.0f)));
 
-        yield return WaitUntilDied(boss);
+        yield return new WaitForSeconds(2f);
     }
     private IEnumerator BossWave()
     {

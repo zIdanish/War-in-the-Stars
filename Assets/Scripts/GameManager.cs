@@ -9,6 +9,7 @@ using UnityEngine.UIElements;
 using Image = UnityEngine.UI.Image;
 #nullable enable
 
+// --> another moment where i wished i had scriptableobjects instead
 public class GameManager : MonoBehaviour
 {
     /* Init Variables */
@@ -240,52 +241,50 @@ public class GameManager : MonoBehaviour
         Projectile Component = Shoot(projectile, position, target, spd, destination);
         return Component;
     }
-    public IEnumerator Warn(float duration, Transform transform)
+    public GameObject Warn(float duration, float size, Transform transform)
     {
-        GameObject Alert = Instantiate(Warning);
-        Alert.transform.SetParent(Projectiles);
-        Laser Component = Alert.GetComponent<Laser>();
-        Component.Begin(duration);
-
-        while (!Alert.IsDestroyed())
-        {
-            Alert.transform.localPosition = transform.localPosition;
-            Alert.transform.localRotation = transform.localRotation;
-            yield return null;
-        }
+        GameObject Alert = _Warn(duration, size);
+        StartCoroutine(_Snap(Alert, transform, 0));
+        return Alert;
     }
-    public IEnumerator Warn(float duration, Transform transform, float dist)
+    public GameObject Warn(float duration, float size, Transform transform, float dist)
     {
-        GameObject Alert = Instantiate(Warning);
-        Alert.transform.SetParent(Projectiles);
-        Laser Component = Alert.GetComponent<Laser>();
-        Component.Begin(duration);
-
-        while (!Alert.IsDestroyed())
-        {
-            Alert.transform.localPosition = transform.localPosition + transform.up*dist;
-            Alert.transform.localRotation = transform.localRotation;
-            yield return null;
-        }
+        GameObject Alert = _Warn(duration, size);
+        StartCoroutine(_Snap(Alert, transform, dist));
+        return Alert;
     }
-    public void Warn(float duration, Vector2 position)
+    public GameObject Warn(float duration, float size, Vector2 position)
     {
-        GameObject Alert = Instantiate(Warning);
-        Alert.transform.SetParent(Projectiles);
-        Laser Component = Alert.GetComponent<Laser>();
-        Component.Begin(duration);
+        GameObject Alert = _Warn(duration, size);
 
         Alert.transform.position = position;
+        return Alert;
     }
-    public void Warn(float duration, Vector2 position, float angle)
+    public GameObject Warn(float duration, float size, Vector2 position, float angle)
     {
-        GameObject Alert = Instantiate(Warning);
-        Alert.transform.SetParent(Projectiles);
-        Laser Component = Alert.GetComponent<Laser>();
-        Component.Begin(duration);
+        GameObject Alert = _Warn(duration, size);
 
         Alert.transform.position = position;
         Alert.transform.rotation = Quaternion.Euler(0, 0, angle + 90);
+        return Alert;
+    }
+    private GameObject _Warn(float duration, float size)
+    {
+        GameObject Alert = Instantiate(Warning);
+        Alert.transform.SetParent(Projectiles);
+        Alert.transform.localScale = new Vector3(size, 10, size);
+        Laser Component = Alert.GetComponent<Laser>();
+        Component.Begin(duration);
+        return Alert;
+    }
+    private IEnumerator _Snap(GameObject Alert, Transform transform, float dist)
+    {
+        while (!Alert.IsDestroyed())
+        {
+            Alert.transform.localPosition = transform.localPosition + transform.up * dist;
+            Alert.transform.localRotation = transform.localRotation;
+            yield return null;
+        }
     }
     // Selects a random coroutine in the arguments to activate
     public Coroutine RandomPattern(params IEnumerator[] patterns)

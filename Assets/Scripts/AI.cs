@@ -73,6 +73,12 @@ public class AI : MonoBehaviour
         return StartCoroutine(tasks[UnityEngine.Random.Range(0, tasks.Length)]);
     }
 
+    // Returns true or false depending on the chance value
+    public bool Random(float chance)
+    {
+        return UnityEngine.Random.Range(0f, 100f)<chance;
+    }
+
     // proxy for safely calling coroutines
     private IEnumerator __proxy()
     {

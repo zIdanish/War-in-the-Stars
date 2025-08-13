@@ -31,6 +31,9 @@ public class Entity : MonoBehaviour
     [SerializeField] private float inv = 0; // invulnerability window
     [SerializeField] private int score = 0;
 
+    // Easings
+    [SerializeField] private Ease Easing = Ease.OutQuad; // entity movement & stat easing
+
     // Entity Vector2 info, destination is the target position the entity is moving towards.
     private SpriteRenderer sprite = null!;
     private Vector2 destination;
@@ -158,7 +161,7 @@ public class Entity : MonoBehaviour
             x =>
             {
                 transform.rotation = Quaternion.Slerp(start, end, x);
-                Direction = new Vector2(transform.right.x, transform.right.y);
+                Direction = new Vector2(transform.up.x, transform.up.y);
                 Angle = Mathf.Lerp(base_angle, angle, x);
             },
             1f,
@@ -202,7 +205,7 @@ public class Entity : MonoBehaviour
             MOVING_TO_DESTINATION = DOTween.To(
                 () => currentPos,
                 x => { transform.position = x; position = x; }, destination, time
-            ).SetEase(Ease.OutQuad).SetLink(gameObject);
+            ).SetEase(Easing).SetLink(gameObject);
 
         }
     }
@@ -393,7 +396,7 @@ public class Entity : MonoBehaviour
                 Offsets[stat][index] = x;
                 elapsed += Time.deltaTime;
             }, change, time
-        ).SetEase(Ease.OutQuad).SetLink(gameObject);
+        ).SetEase(Easing).SetLink(gameObject);
 
         // function to reset the stats
         // --> so janky i hate thisv  i hate DICTIONARIES
@@ -407,18 +410,19 @@ public class Entity : MonoBehaviour
             Tween undo = DOTween.To(
                 () => Offsets[stat][index],
                 x => {
+                    Debug.Log(index);
                     Offsets[stat][index] = x;
                 }, 0f, time
-            ).SetEase(Ease.OutQuad).SetLink(gameObject);
+            ).SetEase(Easing).SetLink(gameObject);
 
             IEnumerator remove()
             {
                 yield return new WaitForSeconds(time);
+                undo.Kill();
 
                 if (!Offsets[stat].ContainsKey(index)) { yield break; }
                 yield return null;
 
-                undo.Kill();
                 Offsets[stat].Remove(index);
             }
 

@@ -13,9 +13,11 @@ public class PJ_Laser : Projectile
     public Vector2? DISP; // Displacement from the anchor
     public float? WARN = 1f; // Warning laser
     public float DURATION = 1f; // Laser lifetime
+    public float SIZE = 10f;
     /*<------------------------------------->*/
     private Dictionary<Entity, bool> debounce = new Dictionary<Entity, bool>();
     private SpriteRenderer sprite = null!;
+    private GameObject? warn;
     protected override void Start()
     {
         // init projectile properties
@@ -70,22 +72,32 @@ public class PJ_Laser : Projectile
         // Warning laser
         if (WARN != null && WARN > 0)
         {
-            yield return StartCoroutine(Game.Warn((float)WARN, transform));
+            yield return StartCoroutine(Warn((float)WARN));
         }
 
         // Laser
         if (DURATION > 0)
         {
-            yield return StartCoroutine(Laser((float)DURATION));
+            yield return StartCoroutine(Laser(DURATION));
         }
+    }
+    private IEnumerator Warn(float duration)
+    {
+        if (Caster != null && Caster.IsDestroyed()) { yield break; }
+        warn = Game.Warn(duration, SIZE, transform);
+
+        while (!warn.IsDestroyed()) { yield return null; }
     }
     private IEnumerator Laser(float duration)
     {
+        if (Caster != null && Caster.IsDestroyed()) { yield break; }
+        transform.localScale = new Vector3(SIZE, 10, SIZE);
         Laser Component = GetComponent<Laser>();
         Component.Begin(duration);
+
         float transition = Mathf.Min(.25f, duration / 2);
 
-        yield return new WaitForSeconds(transition);
+        yield return new WaitForSeconds(transition / 2);
 
         GetComponent<Collider2D>().enabled = true;
         yield return new WaitForSeconds(duration - transition);

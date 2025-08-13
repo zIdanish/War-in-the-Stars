@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1001 &3047074199880473425
+--- !u!1001 &5847801386190436160
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -11,15 +11,7 @@ PrefabInstance:
     - target: {fileID: 4412031894215741312, guid: 007c0b9564c2fdc44bb90a5a5f75561f, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: 5273d798e457b134588a1a01706af585, type: 3}
-    - target: {fileID: 5748802934649636316, guid: 007c0b9564c2fdc44bb90a5a5f75561f, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 2.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 5748802934649636316, guid: 007c0b9564c2fdc44bb90a5a5f75561f, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 2.5
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 21300000, guid: a4dc06942c5d931409411bd240b77eb2, type: 3}
     - target: {fileID: 5748802934649636316, guid: 007c0b9564c2fdc44bb90a5a5f75561f, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -62,49 +54,99 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8125693464603410726, guid: 007c0b9564c2fdc44bb90a5a5f75561f, type: 3}
       propertyPath: hp
-      value: 12500
+      value: 500
       objectReference: {fileID: 0}
     - target: {fileID: 8125693464603410726, guid: 007c0b9564c2fdc44bb90a5a5f75561f, type: 3}
       propertyPath: dmg
-      value: 25
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 8125693464603410726, guid: 007c0b9564c2fdc44bb90a5a5f75561f, type: 3}
       propertyPath: spd
-      value: 2
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 8125693464603410726, guid: 007c0b9564c2fdc44bb90a5a5f75561f, type: 3}
       propertyPath: score
-      value: 12500
+      value: 300
       objectReference: {fileID: 0}
     - target: {fileID: 9036611122958503002, guid: 007c0b9564c2fdc44bb90a5a5f75561f, type: 3}
       propertyPath: m_Name
-      value: Goon Boss
+      value: Goon5
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 3572761757730763048, guid: 007c0b9564c2fdc44bb90a5a5f75561f, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 9036611122958503002, guid: 007c0b9564c2fdc44bb90a5a5f75561f, type: 3}
+      insertIndex: 2
+      addedObject: {fileID: 670788784575444678}
+    - targetCorrespondingSourceObject: {fileID: 9036611122958503002, guid: 007c0b9564c2fdc44bb90a5a5f75561f, type: 3}
       insertIndex: -1
-      addedObject: {fileID: -3608479165609341800}
+      addedObject: {fileID: 4290777970582754330}
   m_SourcePrefab: {fileID: 100100000, guid: 007c0b9564c2fdc44bb90a5a5f75561f, type: 3}
---- !u!1 &6278330309585606411 stripped
+--- !u!1 &3193031865735052058 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 9036611122958503002, guid: 007c0b9564c2fdc44bb90a5a5f75561f, type: 3}
-  m_PrefabInstance: {fileID: 3047074199880473425}
+  m_PrefabInstance: {fileID: 5847801386190436160}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &-3608479165609341800
+--- !u!61 &670788784575444678
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3193031865735052058}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: -3}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 20, y: 30.007326}
+    newSize: {x: 9.6, y: 9.6}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 10, y: 20}
+  m_EdgeRadius: 0
+--- !u!114 &4290777970582754330
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6278330309585606411}
+  m_GameObject: {fileID: 3193031865735052058}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 611a9a7f3912b734393b18a8523a6191, type: 3}
+  m_Script: {fileID: 11500000, guid: e3c0c04db4328a94aaffe3f5aedb7b95, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Projectile: {fileID: 1699499589198558219, guid: 7bc6ac80f69adac4c8a3bbfb90fd6560, type: 3}
-  Projectile_Bullet: {fileID: 1266743236956514637, guid: 31f30408000e04f4bbbb269bb8849755, type: 3}
-  Projectile_Laser: {fileID: 5833501255831245564, guid: f28d52db1414ed3408fa6207737bf9b3, type: 3}
+  Cooldown: 4
+  ProjectileSpeed: 0
+  Lifetime: 12
+  Projectile: {fileID: 5833501255831245564, guid: f28d52db1414ed3408fa6207737bf9b3, type: 3}

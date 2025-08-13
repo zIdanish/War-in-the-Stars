@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class AI_Goon : AI
+public class AI_Shooter : AI
 {
     /*<-----------------Stats---------------->*/
     public float Cooldown = 1;
@@ -24,6 +24,9 @@ public class AI_Goon : AI
         }
 
         /*<-------------------------------------->*/
+        // Set the entity's base Position
+        BasePosition = entity.Position;
+
         // Start the Attack Behaviour
 
         onAttack();
@@ -74,9 +77,6 @@ public class AI_Goon : AI
     }
     private IEnumerator Pattern() // Behaviour when attacking the player
     {
-        // Set the entity's base Position
-        BasePosition = entity.Position;
-
         // Loops the attack every cooldown
         while (true)
         {
