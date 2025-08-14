@@ -19,6 +19,8 @@ public class Projectile : MonoBehaviour
     [NonSerialized] public string? TARGET; // target entity tag (Player/Enemy)
     [NonSerialized] public Entity? Caster; // caster of this projectile
     public float? LIFE; // how long this projectile lasts for
+    public bool FRIENDLY { get; protected set; } = false; // For comparison between which projectiles provide advantages to the target group
+    public float VALUE { get; protected set; } = 0; // Set projectile value for comparison between projectiles
     /*<---------------Movement-------------->*/
     public Vector2 Position { get; private set; } // current projectile position
     public Vector2 Direction { get; private set; } // projectile facing & moving direction
@@ -49,7 +51,7 @@ public class Projectile : MonoBehaviour
 
     // !! Call this function to destroy the projectile instead of Destroy(this.gameObject) !!
     // Plays on Projectile destroyed
-    protected virtual void Destroyed()
+    public virtual void Destroyed()
     {
         Destroy(this.gameObject);
     }
@@ -64,7 +66,7 @@ public class Projectile : MonoBehaviour
     // Check if the tag is the same as the target
     // and if the collision has an entity component
     // Then call the OnHit function once everything has been checked
-    private void OnTriggerEnter2D(Collider2D collision)
+    protected virtual void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.tag != TARGET) { return; }
 

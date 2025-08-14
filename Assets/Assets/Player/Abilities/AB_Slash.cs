@@ -1,21 +1,22 @@
+using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
-public class AB_Big : Ability
+public class AB_Slash : Ability
 {
     /*<-----------------Stats---------------->*/
-    public float Cooldown = 5f;
-    public float DamageMultiplier = 20;
-    public float ProjectileSpeed = 10;
+    public float Cooldown = 7.5f;
+    public float ProjectileSpeed = 2f;
+    public float DamageMultiplier = 2f;
     /*<-------------------------------------->*/
-    public GameObject Projectile;
+    public GameObject Slash;
     /*<-------------------------------------->*/
+    protected override void Awake() { base.Awake(); }
     public override void Link()
     {
+        Slash = Game.Assets.Slash;
         base.Link();
-        Projectile = Game.Assets.Circle;
     }
     public override IEnumerator Timeline()
     {
@@ -30,8 +31,12 @@ public class AB_Big : Ability
     }
     private void Attack()
     {
-        var bullet = (PJ_Damage)entity.Shoot(Projectile, ProjectileSpeed, 0);
-        bullet.transform.localScale *= 2;
+        var bullet = (PJ_Slash)entity.Shoot(Slash, ProjectileSpeed, 0);
+        bullet.LIFE = .25f;
+        bullet.SetPosition(bullet.Position + bullet.Direction*10);
         bullet.DMG = entity.DMG * DamageMultiplier;
+
+        var scale = bullet.transform.localScale;
+        DOTween.To(() => scale, x => bullet.transform.localScale = x, scale * 2, .25f).SetLink(bullet.gameObject);
     }
 }

@@ -8,14 +8,19 @@ public class PSV_Homing : Ability
 {
     /*<-----------------Stats---------------->*/
     public float Cooldown = 1f;
-    /*<-------------------------------------->*/
     public float DamageMultiplier = 2;
     public float ProjectileSpeed = 50;
     public float HomingDelay = .25f;
     public float HomingTime = .5f;
+    /*<-------------------------------------->*/
     public GameObject Projectile;
     /*<-------------------------------------->*/
-    private void Start()    { Init(); }
+    protected override void Awake() { base.Awake(); }
+    public override void Link()
+    {
+        Projectile = Game.Assets.Bullet;
+        base.Link();
+    }
     public override IEnumerator Timeline()
     {
         while (true)
@@ -30,17 +35,17 @@ public class PSV_Homing : Ability
         {
             var angle = UnityEngine.Random.Range(100, 260);
 
-            var enemy = getClosest();
-
             var bullet = (PJ_Damage)entity.Shoot(Projectile, ProjectileSpeed, angle);
             bullet.DMG = entity.DMG * DamageMultiplier;
-            if (enemy == null) { return; }
 
-            StartCoroutine(LockOn(enemy, bullet, angle));
+            StartCoroutine(LockOn(bullet, angle));
         }
     }
-    private IEnumerator LockOn(Entity enemy, Projectile bullet, float angle)
+    private IEnumerator LockOn(Projectile bullet, float angle)
     {
+        var enemy = getClosest(bullet.Position);
+        if (enemy == null) { yield break; }
+
         bullet.DISABLE_DELETE = true;
         bullet.Accelerate(-ProjectileSpeed * .75f, HomingDelay);
 

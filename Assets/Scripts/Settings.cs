@@ -1,3 +1,4 @@
+using System.Drawing;
 using UnityEngine;
 
 // --> ScriptableObjects exist, thanks for teaching that after I've done most of the game...
@@ -7,6 +8,7 @@ public class _settings : MonoBehaviour
     /* Setting Configuration */
     public static float Sensitivity = 1.0f; // cursor sensitivity
     public static float BoundaryShear = 5.0f; // cursor offset from the boundaries
+    public static float AspectRatio = 16f / 9f; // screen aspect ratio
 
     // Z Layers (sortingOrder)
     public static int zBgProjectile = 2;
@@ -18,10 +20,14 @@ public class _settings : MonoBehaviour
     public static int zEnemyProjectile = 8;
     // leave zindex above zEnemyProjectile empty for warning projectiles
 
+    /* Keybinds */
+
+    public static string[] AbilityKeybinds = { "q", "w", "e" }; // keybinds for abilities in string (will be formatted in scripts)
+
     /* Automatic Variables */
-    public static float Height { get { return Camera.main.orthographicSize; } }
-    public static Vector2 Screen { get { return new Vector2(Height / 9*16, Height); } } // Full screen size
-    public static Vector2 Boundaries { get { float size = Height - BoundaryShear; return new Vector2(size, size); } } // Boundary Size
+    public static float Height { get { return Camera.main.orthographicSize; } } // Screen Height from the camera size
+    public static Vector2 Screen { get { return new Vector2(Height * AspectRatio, Height); } } // Full screen size using 16:9 aspect ratio
+    public static Vector2 Boundaries { get { var size = Height - BoundaryShear; return new Vector2(size, size); } } // Boundary Size using 1:1 aspect ratio and adding the shears
 
     /* Debug */
     public static bool debug_placeholder = true; // --> unused, lazy to remove these three lines

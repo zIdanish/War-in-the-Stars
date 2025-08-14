@@ -13,6 +13,7 @@ public class PJ_Asteroid : Projectile
     private SpriteRenderer sprite;
     protected override void Start()
     {
+        VALUE = DMG;
         base.Start();
         sprite = GetComponent<SpriteRenderer>();
         StartCoroutine(_Start());

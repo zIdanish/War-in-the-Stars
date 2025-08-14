@@ -22,12 +22,7 @@ public class Level_Main : GameManager
     /* Player Manager */
     protected override void PlayerAbilities()
     {
-        PSV_Default AB_Base = (PSV_Default)player.AddAbility("AB_Default");
-        AB_Base.Projectile = PlayerBullet;
-
-        AB_Big AB_1 = (AB_Big)player.AddAbility("AB_Big", "q");
-        AB_1.Projectile = PlayerBulletBig;
-        AB_1.icon = UI.Find("Ability1");
+        // remember to add back
     }
 
     /* Wave Manager */

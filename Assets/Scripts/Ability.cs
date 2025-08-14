@@ -24,14 +24,15 @@ public class Ability : MonoBehaviour
     public Transform? icon; // ability icon UI (no need to set if the ability is automatic)
 
     // below are set automatically
-    protected Image? background; // cooldown background image
-    protected TextMeshProUGUI? text; // cooldown text display
+    protected Image? background; // ui cooldown background image
+    protected TextMeshProUGUI? text; // ui cooldown text display
     /*<----------------Stats---------------->*/
-    public InputAction input = new InputAction(); // keybinds
+    public InputAction input = new InputAction();
     /*<-----------------Misc---------------->*/
-    protected Transform entities = null!;
-    protected Entity entity = null!;
-    protected Coroutine timeline = null!;
+    protected Transform entities = null!; // transform which stores all entities in its children
+    protected Entity entity = null!; // main entity this ability is tied to
+    protected Coroutine timeline = null!; // the ability timeline
+    protected GameManager Game = null!;
 
     /*<------------Init Functions----------->*/
 
@@ -44,29 +45,35 @@ public class Ability : MonoBehaviour
     {
         if (input != null) { input.Disable(); };
     }
-
-    // Called outside the script
-    public void Init()
+    protected virtual void Awake()
     {
         // init variables
         entities = GameObject.FindGameObjectWithTag("Entities").transform;
         entity = GetComponent<Entity>();
-        timeline = StartCoroutine(Timeline());
-
+        Game = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameManager>();
+    }
+    // Called outside the script to link the projectile to the player
+    // And start the timeline in a coroutine
+    public virtual void Link()
+    {
         // init icon if not null
-        if (icon == null) { return; }
-        background = icon.Find("Cooldown").GetComponent<Image>();
-        text = icon.Find("Display").GetComponent<TextMeshProUGUI>();
-        background.enabled = false; text.enabled = false;
+        if (icon != null)
+        {
+            background = icon.Find("Cooldown").GetComponent<Image>();
+            text = icon.Find("Display").GetComponent<TextMeshProUGUI>();
+            background.enabled = false; text.enabled = false;
+        }
+
+        timeline = StartCoroutine(Timeline());
     }
 
-    /*<------------Timeline----------->*/
+    /*<------------Essentials----------->*/
 
     // Ability timeline
     // --> This is just a placeholder, replace it with the actual bullet pattern
     public virtual IEnumerator Timeline()
     {
-        Debug.Log($"{this.GetType().FullName} does not have a timeline!!!!!!!!!!!!!!!!!!");
+        Debug.LogWarning($"{this.GetType().FullName} does not have a timeline!!!!!!!!!!!!!!!!!!");
         yield return null;
     }
 
@@ -102,8 +109,10 @@ public class Ability : MonoBehaviour
     /*<------------Ability Functions----------->*/
     // Compares the distance between each enemy entity
     // Returns the closest enemy to the player
-    public Entity? getClosest()
+    public Entity? getClosest(Vector2? position)
     {
+        if (position == null) position = entity.Position;
+
         Entity? closest = null;
         float? distance = null;
 
@@ -111,9 +120,9 @@ public class Ability : MonoBehaviour
         {
             if (enemy.CompareTag(transform.tag)) { continue; }
 
-            var dist = (enemy.Position - entity.Position).magnitude;
+            var dist = (enemy.Position - (Vector2)position).magnitude;
 
-            if (distance!=null && distance > dist) { continue; }
+            if (distance!=null && distance < dist) { continue; }
             closest = enemy;
             distance = dist;
         }

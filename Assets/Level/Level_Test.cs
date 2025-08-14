@@ -16,8 +16,6 @@ public class Level_Test : GameManager
     /*<-----------------Projectiles---------------->*/
     public GameObject HealOrb;
     public GameObject Asteroid;
-    public GameObject PlayerProjectile;
-    public GameObject PlayerBullet;
 
     /* Init Variables */
     public void Start()
@@ -28,12 +26,10 @@ public class Level_Test : GameManager
     /* Player Manager */
     protected override void PlayerAbilities()
     {
-        var AB_Base = (PSV_Homing)player.AddAbility("PSV_Homing");
-        AB_Base.Projectile = PlayerBullet;
-
-        var AB_1 = (AB_Big)player.AddAbility("AB_Big", "q");
-        AB_1.Projectile = PlayerProjectile;
-        AB_1.icon = UI.Find("Ability1");
+        SetAbility("PSV_Default", 0);
+        SetAbility("AB_Big", 1);
+        SetAbility("AB_Slash", 2);
+        SetAbility("AB_Laser", 3);
     }
 
     /* Wave Manager */

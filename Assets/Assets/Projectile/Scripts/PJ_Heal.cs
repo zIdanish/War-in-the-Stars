@@ -10,6 +10,8 @@ public class PJ_Heal : Projectile
     /*<------------------------------------->*/
     protected override void Start()
     {
+        FRIENDLY = true; // --> Friendly projectile :)
+        VALUE = HEAL;
         base.Start();
     }
 

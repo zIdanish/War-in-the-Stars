@@ -2,8 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+#nullable enable
 
-public class PJ_Damage : Projectile
+public class PJ_Slash : Projectile
 {
     /*<----------------Stats---------------->*/
     [NonSerialized] public float DMG = 10;
@@ -18,6 +19,20 @@ public class PJ_Damage : Projectile
     {
         base.Update();
     }
+    protected override void OnTriggerEnter2D(Collider2D collision)
+    {
+        Projectile? projectile = collision.gameObject.GetComponent<Projectile>();
+
+        if (projectile != null)
+        {
+            if (projectile.TARGET == TARGET != FRIENDLY || projectile.VALUE > VALUE) { return; }
+
+            projectile.Destroyed();
+            return;
+        }
+
+        base.OnTriggerEnter2D(collision);
+    }
 
     /* Projectile Functions */
     protected override void OnHit(Entity entity)
@@ -26,8 +41,6 @@ public class PJ_Damage : Projectile
         if (entity.Invulnerable) { return; }
         DMG = entity.Damage(DMG, Caster);
 
-        // Destroy this object if no damage is left
-        if (DMG > 0) { return; }
-        Destroyed();
+
     }
 }

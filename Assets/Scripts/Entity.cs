@@ -209,7 +209,6 @@ public class Entity : MonoBehaviour
                 () => currentPos,
                 x => { transform.position = x; position = x; }, destination, time
             ).SetEase(Easing).SetLink(gameObject);
-
         }
     }
 
@@ -293,20 +292,6 @@ public class Entity : MonoBehaviour
     private float defaultAngle()
     {
         return transform.CompareTag("Player") ? 0 : 180;
-    }
-
-    // Player functions
-    public Ability AddAbility(string component)
-    {
-        var type = Type.GetType(component);
-        Ability ability = (Ability)gameObject.AddComponent(type);
-        return ability;
-    }
-    public Ability AddAbility(string component, string keybind)
-    {
-        Ability ability = AddAbility(component);
-        ability.input.AddBinding($"<Keyboard>/{keybind.ToLower()}");
-        return ability;
     }
 
     // Stat functions

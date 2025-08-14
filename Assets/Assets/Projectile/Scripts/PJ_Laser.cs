@@ -1,8 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
+using static UnityEngine.EventSystems.EventTrigger;
 #nullable enable
 
 public class PJ_Laser : Projectile
@@ -13,9 +15,11 @@ public class PJ_Laser : Projectile
     public Vector2? DISP; // Displacement from the anchor
     public float? WARN = 1f; // Warning laser
     public float DURATION = 1f; // Laser lifetime
+    public float? COOLDOWN = null;
     public float SIZE = 10f;
     /*<------------------------------------->*/
-    private Dictionary<Entity, bool> debounce = new Dictionary<Entity, bool>();
+    private Dictionary<Entity, bool> collided = new Dictionary<Entity, bool>();
+    private Dictionary<Entity, float> hit = new Dictionary<Entity, float>();
     private SpriteRenderer sprite = null!;
     private GameObject? warn;
     protected override void Start()
@@ -24,6 +28,7 @@ public class PJ_Laser : Projectile
         GetComponent<Collider2D>().enabled = false;
         DISABLE_DELETE = true;
         DISABLE_MOVE = true;
+        VALUE = DMG;
         SPD = 0; // default SPD to 0
         
         // init sprites
@@ -39,20 +44,63 @@ public class PJ_Laser : Projectile
     {
         // add pivot position
         RefreshPosition();
+
+        // refresh hit
+        Check();
+
         base.Update();
-    }
-    protected override void Destroyed()
-    {
-        base.Destroyed();
     }
 
     /* Projectile Functions */
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        if (collision.gameObject.tag != TARGET) { return; }
+
+        Entity? entity = collision.gameObject.GetComponent<Entity>();
+        if (entity == null) { return; }
+
+        OnExit(entity);
+    }
     protected override void OnHit(Entity entity)
     {
-        // Deals damage to the entity
-        if (entity.Invulnerable || debounce.ContainsKey(entity)) { return; }
-        debounce[entity] = true;
+        // Add entity to collision table
+        if (COOLDOWN!=null && !collided.ContainsKey(entity))
+        {
+            collided[entity] = true;
+        }
+
+        if (hit.ContainsKey(entity)) { return; }
+        hit[entity] = 0;
+        Hit(entity);
+    }
+    private void OnExit(Entity entity)
+    {
+        // Remove entity from collision table
+        if (!collided.ContainsKey(entity)) { return; }
+        collided.Remove(entity);
+    }
+    private void Check()
+    {
+        if (COOLDOWN == null) { return; }
+
+        foreach (var enemy in hit.Keys.ToList())
+        {
+            hit[enemy] -= Math.Min((float)COOLDOWN, Time.deltaTime);
+            if (!collided.ContainsKey(enemy)) { continue; }
+            Hit(enemy);
+        }
+    }
+    private void Hit(Entity entity)
+    {
+        if (hit[entity] > 0 || entity.IsDestroyed()) { return; }
+        hit[entity] += (float)(COOLDOWN!=null ? COOLDOWN : 1);
+
         entity.Damage(DMG, Caster);
+        if (entity.IsDestroyed())
+        {
+            hit.Remove(entity);
+            collided.Remove(entity);
+        }
     }
     public void RefreshPosition()
     {

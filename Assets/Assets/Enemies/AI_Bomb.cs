@@ -20,7 +20,6 @@ public class AI_Bomb : AI
     /*<----------------Timeline--------------->*/
     protected override IEnumerator Timeline()
     {
-        entity.MoveTo(new Vector2(entity.Position.x, -_settings.Height - 20));
         entity.Look(-entity.Angle);
         while (entity.Moving) { yield return null; }
         entity.Die(null);

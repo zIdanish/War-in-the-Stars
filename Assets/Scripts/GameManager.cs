@@ -1,21 +1,26 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Xml.Linq;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.HID;
 using UnityEngine.UIElements;
+using static UnityEngine.EventSystems.EventTrigger;
 using Image = UnityEngine.UI.Image;
 #nullable enable
 
-// --> another moment where i wished i had scriptableobjects instead
+// --> mess that piled up as i added more and got lazy to fix cause its like 2 days left before submission :(
 public class GameManager : MonoBehaviour
 {
     /* Init Variables */
     /*<-----------------Game Variables---------------->*/
     public bool Ended { get; private set; } = false;
     public bool Paused { get; private set; } = false;
+    public AbilityAssets Assets = null!;
     public int EntityCount { get { return Entities.childCount; } }
     public int EntityLimit = 50;
     [NonSerialized] public Entity player = null!;
@@ -27,10 +32,10 @@ public class GameManager : MonoBehaviour
     // Prefabs
     public GameObject Warning = null!;
     /*<----------------------------------------------->*/
-    protected Transform UI = null!;
-    private TextMeshProUGUI ScoreUI = null!;
-    private Transform Entities = null!;
-    private Transform Projectiles = null!;
+    public Transform UI { get; protected set; } = null!;
+    public TextMeshProUGUI ScoreUI { get; protected set; } = null!;
+    public Transform Entities { get; protected set; } = null!;
+    public Transform Projectiles { get; protected set; } = null!;
 
     /* Public Variables */
     public int Score { get { return score; } }
@@ -47,12 +52,16 @@ public class GameManager : MonoBehaviour
         PlayerHealth = UI.Find("PlayerHealth");
         BossHealth = UI.Find("BossHealth");
 
+        // disable boss healthbar & ability uis
+        BossHealth.gameObject.SetActive(false);
+        UI.Find("Ability1").gameObject.SetActive(false);
+        UI.Find("Ability2").gameObject.SetActive(false);
+        UI.Find("Ability3").gameObject.SetActive(false);
+
+        // start the other init functions
         StartCoroutine(Timeline());
         HideCursor();
         StartCoroutine(InitPlayer());
-
-        // disable boss healthbar
-        BossHealth.gameObject.SetActive(false);
     }
     private IEnumerator InitPlayer()
     {
@@ -112,12 +121,47 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 1f;
     }
 
+    // General Functions
+
+    // Selects a random coroutine in the arguments to activate
+    public Coroutine RandomPattern(params IEnumerator[] patterns)
+    {
+        return StartCoroutine(patterns[UnityEngine.Random.Range(0, patterns.Length)]);
+    }
+
     // Wait Functions
     public IEnumerator WaitUntilDied(Entity entity)
     {
         while (!Ended && !entity.IsDestroyed()) { 
             yield return null;
         }
+    }
+
+    // Game Functions
+
+    // Sets the ability slot of the player entity to a new ability (of type abilityName)
+    // Gets the type of the abilityName, adds the component to the player gameobject
+    // Checks if the slot is an active slot and sets the icon Transform and Keybinding of the ability respectively
+    // Links the ability to begin the timeline
+    public Ability SetAbility(string abilityName, int slot)
+    {
+        var type = Type.GetType(abilityName);
+        Ability ability = (Ability)player.gameObject.AddComponent(type);
+
+        if (slot > 0)
+        {
+            var keybind = _settings.AbilityKeybinds[slot - 1];
+            var icon = UI.Find($"Ability{slot}");
+            ability.icon = icon;
+            ability.input.AddBinding($"<Keyboard>/{keybind}");
+
+            // init icon
+            icon.Find("Keybind").GetComponent<TextMeshProUGUI>().SetText(keybind.ToUpper());
+            icon.gameObject.SetActive(true);
+        }
+
+        ability.Link();
+        return ability;
     }
 
     // Increases the score
@@ -129,6 +173,8 @@ public class GameManager : MonoBehaviour
         // refresh score text
         ScoreUI.SetText(score.ToString("D9"));
     }
+
+    // Display HP on the UI bar from the Transform
     public void DisplayHP(Transform health, float hp, float maxHP)
     {
         if (Ended) { return; }
@@ -212,7 +258,7 @@ public class GameManager : MonoBehaviour
         return Component;
     }
 
-    // Spawn Projectiles
+    // Projectiles
     public Projectile Shoot(GameObject projectile, Vector2 position, string target, float spd, float angle) // Creates a projectile that moves at an angle
     {
         float radians = angle * Mathf.Deg2Rad;
@@ -297,10 +343,5 @@ public class GameManager : MonoBehaviour
             Alert.transform.localRotation = transform.localRotation;
             yield return null;
         }
-    }
-    // Selects a random coroutine in the arguments to activate
-    public Coroutine RandomPattern(params IEnumerator[] patterns)
-    {
-        return StartCoroutine(patterns[UnityEngine.Random.Range(0, patterns.Length)]);
     }
 }
