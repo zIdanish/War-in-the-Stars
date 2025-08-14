@@ -1,19 +1,31 @@
 using System;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using static UnityEngine.GraphicsBuffer;
 #nullable enable
 
-//# Player: Translating player inputs into Entity Functions
+/// <summary>
+/// Player Manager
+/// Uses player inputs to control the Player Entity
+/// Also manages TP (Tension Points), a player only stat in the entity class
+/// </summary>
 public class Player : MonoBehaviour
 {
+    /* Abilities */
+    public Ability?[] Abilities = { null, null, null, null };
     /* Init Variables */
-    private GameManager Game = null!;
     private InputAction Pause = new InputAction();
     private Cursor Cursor = null!;
     private Entity Entity = null!;
+    private GameManager Game = null!;
+
     private void Awake() // Setup objects and components
     {
+        // --> REMEBMBER FIX THIS
+        // --> REMEBMBER FIX THIS
+        // --> excuse me what am i supposed to fix I DIDNT REMIND MYSELF WHAT IM SUPPOSED TO FIX
+
         Game = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameManager>();
 
         Pause.AddBinding("<Keyboard>/escape");
@@ -49,7 +61,6 @@ public class Player : MonoBehaviour
     {
         Pause.Disable();
     }
-
     private void Update()
     {
         MoveEntity();

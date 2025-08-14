@@ -25,7 +25,7 @@ public class PJ_Slash : Projectile
 
         if (projectile != null)
         {
-            if (projectile.TARGET == TARGET != FRIENDLY || projectile.VALUE > VALUE) { return; }
+            if (projectile.SameTarget(TARGET) || projectile.VALUE > VALUE) { return; }
 
             projectile.Destroyed();
             return;

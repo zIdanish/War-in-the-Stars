@@ -22,12 +22,13 @@ public class Ability : MonoBehaviour
     /*<----------------UI Variables---------------->*/
     //--> my bad for unhelpful naming scheme
     public Transform? icon; // ability icon UI (no need to set if the ability is automatic)
-
+    
     // below are set automatically
     protected Image? background; // ui cooldown background image
     protected TextMeshProUGUI? text; // ui cooldown text display
     /*<----------------Stats---------------->*/
     public InputAction input = new InputAction();
+    public float? TP { get; protected set; }
     /*<-----------------Misc---------------->*/
     protected Transform entities = null!; // transform which stores all entities in its children
     protected Entity entity = null!; // main entity this ability is tied to
@@ -78,11 +79,20 @@ public class Ability : MonoBehaviour
     }
 
     // Yields until the ability button has been pressed
+    // Also checks if the player has enough TP if the ability has TP
     // Used only for active abilities, passive abilities can just ignore
     protected IEnumerator AbilityPressed()
     {
         if (input == null) { yield break; }
-        while (!input.IsPressed()) { yield return null; }
+        while (
+            !input.IsPressed() || 
+            (TP!=null && entity.TP < TP)
+        ) { yield return null; }
+
+        if (TP != null)
+        {
+            entity.UseTP((float)TP);
+        }
     }
 
     // Causes the Ability to go on a Cooldown

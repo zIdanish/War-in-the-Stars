@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Xml.Linq;
 using TMPro;
 using Unity.VisualScripting;
+using UnityEditor.Playables;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.HID;
@@ -24,6 +25,7 @@ public class GameManager : MonoBehaviour
     public int EntityCount { get { return Entities.childCount; } }
     public int EntityLimit = 50;
     [NonSerialized] public Entity player = null!;
+    [NonSerialized] public Player playerManager = null!;
     public int score { get; protected set; } = 0;
     protected Vector2 bounds = new Vector2();
     [NonSerialized] public Transform PlayerHealth = null!;
@@ -34,6 +36,7 @@ public class GameManager : MonoBehaviour
     /*<----------------------------------------------->*/
     public Transform UI { get; protected set; } = null!;
     public TextMeshProUGUI ScoreUI { get; protected set; } = null!;
+    public Transform TPUI { get; protected set; } = null!;
     public Transform Entities { get; protected set; } = null!;
     public Transform Projectiles { get; protected set; } = null!;
 
@@ -46,6 +49,7 @@ public class GameManager : MonoBehaviour
         Entities = GameObject.FindGameObjectWithTag("Entities").transform;
         UI = GameObject.FindGameObjectWithTag("UI").transform;
         ScoreUI = UI.Find("Score").GetComponent<TextMeshProUGUI>();
+        TPUI = UI.Find("PlayerTension");
         Projectiles = GameObject.FindGameObjectWithTag("Projectiles").transform;
         bounds = _settings.Boundaries;
 
@@ -72,10 +76,11 @@ public class GameManager : MonoBehaviour
             getPlayer = Entity.getPlayer();
             yield return null;
         }
-        player = getPlayer.GetComponent<Entity>();
+        player = getPlayer;
+        playerManager = getPlayer.GetComponent<Player>();
 
         // Set Healthbar
-        player.DisplayBar(PlayerHealth);
+        player.DisplayHPBar(PlayerHealth);
 
         // Activate player abilities
         PlayerAbilities();
@@ -145,23 +150,51 @@ public class GameManager : MonoBehaviour
     // Links the ability to begin the timeline
     public Ability SetAbility(string abilityName, int slot)
     {
+        // delete any prvious abilities
+        if (playerManager.Abilities[slot] != null)
+        {
+            Destroy(playerManager.Abilities[slot]);
+        }
+
+        // create new ability component
         var type = Type.GetType(abilityName);
         Ability ability = (Ability)player.gameObject.AddComponent(type);
 
+        // store ability in playerManager so it can be deleted when adding a new ability in that slot
+        playerManager.Abilities[slot] = ability;
+
         if (slot > 0)
         {
-            var keybind = _settings.AbilityKeybinds[slot - 1];
-            var icon = UI.Find($"Ability{slot}");
-            ability.icon = icon;
-            ability.input.AddBinding($"<Keyboard>/{keybind}");
-
-            // init icon
-            icon.Find("Keybind").GetComponent<TextMeshProUGUI>().SetText(keybind.ToUpper());
-            icon.gameObject.SetActive(true);
+            UILinkAbility(ability, slot);
+        } else {
+            ability.Link();
         }
 
-        ability.Link();
         return ability;
+    }
+    private void UILinkAbility(Ability ability, int slot)
+    {
+        var keybind = _settings.AbilityKeybinds[slot - 1];
+        var icon = UI.Find($"Ability{slot}");
+        ability.icon = icon;
+        ability.input.AddBinding($"<Keyboard>/{keybind}");
+
+        // init icon
+        icon.Find("Keybind").GetComponent<TextMeshProUGUI>().SetText(keybind.ToUpper());
+        icon.gameObject.SetActive(true);
+
+        ability.Link();
+
+        // --> tpp
+        if (ability.TP != null)
+        {
+            icon.Find("TP").GetComponent<TextMeshProUGUI>().SetText($"{ability.TP} TP");
+            icon.Find("TP").gameObject.SetActive(true);
+        }
+        else
+        {
+            icon.Find("TP").gameObject.SetActive(false);
+        }
     }
 
     // Increases the score
@@ -174,24 +207,34 @@ public class GameManager : MonoBehaviour
         ScoreUI.SetText(score.ToString("D9"));
     }
 
-    // Display HP on the UI bar from the Transform
-    public void DisplayHP(Transform health, float hp, float maxHP)
+    // Display Stat on the ui statbar
+    public void DisplaySTAT(Transform ui, float stat, float maxStat)
     {
         if (Ended) { return; }
 
-        Image HealthBar = health.Find("Bar").GetComponent<Image>();
-        TextMeshProUGUI HealthDisplay = health.Find("Display").GetComponent<TextMeshProUGUI>();
+        Image StatBar = ui.Find("Bar").GetComponent<Image>();
+        TextMeshProUGUI StatDisplay = ui.Find("Display").GetComponent<TextMeshProUGUI>();
 
-        RectTransform hpbar = HealthBar.rectTransform;
-        RectTransform? frame = hpbar.parent as RectTransform;
-        if (frame == null) { Debug.Log("HP Frame not found!"); return; }
+        RectTransform rect = StatBar.rectTransform;
+        RectTransform? frame = rect.parent as RectTransform;
+        if (frame == null) { Debug.Log("STAT Frame not found!"); return; }
 
-        float width = frame.rect.width * (1 - (hp / maxHP));
+        float width = frame.rect.width * (1 - (stat / maxStat));
 
-        int display = (int)hp;
-        HealthDisplay.SetText(display.ToString());
+        int display = (int)stat;
+        StatDisplay.SetText(display.ToString());
 
-        HealthBar.rectTransform.offsetMax = new Vector2(-(1.0f + width), -1.0f);
+        StatBar.rectTransform.offsetMax = new Vector2(-(1.0f + width), -1.0f);
+    }
+
+    // Display TP & HP on UI
+    public void DisplayHP(Transform ui, float hp, float maxHP)
+    {
+        DisplaySTAT(ui, hp, maxHP);
+    }
+    public void DisplayTP(float tp)
+    {
+        DisplaySTAT(TPUI, tp, 100);
     }
 
     // Spawns an enemy at the position, and moves towards target position
@@ -239,7 +282,7 @@ public class GameManager : MonoBehaviour
         Component.SetPosition(position);
         Component.MoveTo(targetPosition);
         BossHealth.Find("Name").GetComponent<TextMeshProUGUI>().SetText(enemy.name);
-        Component.DisplayBar(BossHealth);
+        Component.DisplayHPBar(BossHealth);
         BossHealth.gameObject.SetActive(true);
         Enemy.transform.SetParent(Entities);
         Enemy.GetComponent<SpriteRenderer>().sortingOrder = _settings.zEnemy-1;

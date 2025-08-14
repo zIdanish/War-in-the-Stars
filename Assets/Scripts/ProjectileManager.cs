@@ -16,7 +16,7 @@ public class Projectile : MonoBehaviour
 {
     /*<----------------Stats---------------->*/
     [NonSerialized] public float SPD = 15; // projectile speed
-    [NonSerialized] public string? TARGET; // target entity tag (Player/Enemy)
+    [NonSerialized] public string TARGET = "Player"; // target entity tag (Player/Enemy)
     [NonSerialized] public Entity? Caster; // caster of this projectile
     public float? LIFE; // how long this projectile lasts for
     public bool FRIENDLY { get; protected set; } = false; // For comparison between which projectiles provide advantages to the target group
@@ -175,5 +175,13 @@ public class Projectile : MonoBehaviour
             () => 0f,
             x => { SPD += (x - proxy); proxy = x; }, change, time
         ).SetEase(Ease.OutQuad);
+    }
+
+    // Compare target tags together, return true if the target (enemy) is same
+    // Takes into account friendly
+    // Heal orbs targeting the player counts has 'ENEMY'
+    public bool SameTarget(string target)
+    {
+        return TARGET == target != FRIENDLY;
     }
 }
