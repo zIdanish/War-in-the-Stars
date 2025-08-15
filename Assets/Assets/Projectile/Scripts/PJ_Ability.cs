@@ -43,6 +43,7 @@ public class PJ_Ability : Projectile
     {
         if (!entity.transform.CompareTag("Player")) return;
 
+        AudioManager.PlaySound(AudioManager.asset.SND_Get);
         Game.SetAbility(NAME, SLOT);
 
         Destroyed();

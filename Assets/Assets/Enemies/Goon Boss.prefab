@@ -62,7 +62,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8125693464603410726, guid: 007c0b9564c2fdc44bb90a5a5f75561f, type: 3}
       propertyPath: hp
-      value: 12500
+      value: 7500
       objectReference: {fileID: 0}
     - target: {fileID: 8125693464603410726, guid: 007c0b9564c2fdc44bb90a5a5f75561f, type: 3}
       propertyPath: dmg
@@ -74,7 +74,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8125693464603410726, guid: 007c0b9564c2fdc44bb90a5a5f75561f, type: 3}
       propertyPath: score
-      value: 12500
+      value: 10000
       objectReference: {fileID: 0}
     - target: {fileID: 9036611122958503002, guid: 007c0b9564c2fdc44bb90a5a5f75561f, type: 3}
       propertyPath: m_Name

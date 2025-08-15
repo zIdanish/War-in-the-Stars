@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ce82a3c301aebe4fb6d00c483be85ca, type: 3}
+  m_Name: Abilities
+  m_EditorClassIdentifier: 
+  Circle: {fileID: 8749346940242777438, guid: 3a1b82f70a3e4414689f91e363575b1c, type: 3}
+  Bullet: {fileID: 1266743236956514637, guid: 761b0187ef5d90f4b824926b6b9f1207, type: 3}
+  Laser: {fileID: 5833501255831245564, guid: ee16168b0bcde944082defa270d08209, type: 3}
+  Slash: {fileID: 3375930001786244397, guid: 5a838b5cbd288bf48ac60b50b4bf1233, type: 3}

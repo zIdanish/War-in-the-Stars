@@ -2,8 +2,10 @@ using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using UnityEngine;
 using UnityEngine.UIElements;
+using static UnityEngine.GraphicsBuffer;
 #nullable enable
 
 /// <summary>
@@ -20,6 +22,7 @@ public class Projectile : MonoBehaviour
     [NonSerialized] public Entity? Caster; // caster of this projectile
     public float? LIFE; // how long this projectile lasts for
     public bool FRIENDLY { get; protected set; } = false; // For comparison between which projectiles provide advantages to the target group
+    public bool BG { get; protected set; } = false; // Projectiles that appear in the background
     public float VALUE { get; protected set; } = 0; // Set projectile value for comparison between projectiles
     /*<---------------Movement-------------->*/
     public Vector2 Position { get; private set; } // current projectile position
@@ -31,13 +34,21 @@ public class Projectile : MonoBehaviour
     private float? DONT_DELETE = 0; // same as disable delete but to prevent the projectile from killing itself on spawn
     protected float elapsed = 0; // time elapsed since projectile creation
     protected GameManager Game = null!; // core GameManager
+    protected Collider2D Collider = null!; // projectile collider
 
     /*<------------Init Functions----------->*/
     protected virtual void Start()
     {
         // init game variable and projectile's scene position
         Game = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameManager>();
+        Collider = GetComponent<Collider2D>();
         transform.position = Position;
+
+        GetComponent<SpriteRenderer>().sortingOrder =
+            FRIENDLY ? _settings.zFriendlyProjectile :
+            BG ? _settings.zBgProjectile :
+            TARGET != "Player" ? _settings.zPlayerProjectile : 
+            _settings.zEnemyProjectile;
     }
     protected virtual void Update()
     {
@@ -183,5 +194,15 @@ public class Projectile : MonoBehaviour
     public bool SameTarget(string target)
     {
         return TARGET == target != FRIENDLY;
+    }
+
+    // Creates a particle emitter in that position
+    public void ImpactFX(Vector2 position)
+    {
+        var obj = Instantiate(TARGET == "Player" ? _settings.ImpactPlayer : _settings.ImpactEnemy);
+        obj.transform.SetParent(Game.Projectiles, false);
+        obj.transform.position = position;
+        var particle = obj.GetComponent<ParticleSystem>();
+        Destroy(obj, particle.main.startLifetime.constant);
     }
 }

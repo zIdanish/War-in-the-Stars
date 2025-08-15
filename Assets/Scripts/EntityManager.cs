@@ -29,7 +29,7 @@ public class Entity : MonoBehaviour
     [SerializeField] private float spd = 65;
     [SerializeField] private float dmg = 10;
     [SerializeField] private float inv = 0; // invulnerability window
-    [SerializeField] private int score = 0; // score dropped on death from player
+    public int score = 0; // score dropped on death from player
 
     // Events
     public event Action<Entity?>? OnDeath;
@@ -79,6 +79,7 @@ public class Entity : MonoBehaviour
     public bool Moving { get { return Mathf.Abs(position.x - destination.x) > .1f || Mathf.Abs(position.y - destination.y) > .1f; } }
     public float Angle { get; private set; }
     public bool Invulnerable { get { return invulnerable > 0; } }
+    public bool Died { get; private set; }
     /*<-----------------Config--------------->*/
     private Tween? MOVING_TO_DESTINATION; // moving tween so that it can be killed
     private Tween? ROTATING_TO_ANGLE; // rotating tween so that it can be killed
@@ -175,7 +176,7 @@ public class Entity : MonoBehaviour
         Quaternion start = transform.rotation;
         Quaternion end = Quaternion.Euler(0, 0, angle);
 
-        DOTween.To(
+        ROTATING_TO_ANGLE = DOTween.To(
             () => 0f,
             x =>
             {
@@ -347,11 +348,16 @@ public class Entity : MonoBehaviour
     // Sets Healthbar to disable
     // Triggers any event functions OnDeath
     // Destroys the gameObject of this component
+    // Breaks if the entity has already died as a form of debounce
     public void Die(Entity? Caster)
     {
+        if (Died) return;
+        Died = true;
+
         if (Caster != null && Caster.CompareTag("Player")) // Add score when the entity is killed by player
         {
             Game.AddScore(score);
+            score = 0; // --> prevent double score from happeninging (although it shouldnt happen)
         }
         
         if (HealthBar != null && CompareTag("Enemy")) // disable HealthBar if not player
@@ -359,6 +365,7 @@ public class Entity : MonoBehaviour
             HealthBar.gameObject.SetActive(false);
         }
 
+        AudioManager.PlaySound(AudioManager.asset.SND_Death, .5f);
         OnDeath?.Invoke(Caster);
 
         Destroy(gameObject);
@@ -386,6 +393,9 @@ public class Entity : MonoBehaviour
             Game.DisplayHP(HealthBar, hp, Default["HP"]);
         }
 
+        if (this.CompareTag("Player")) AudioManager.PlaySound(AudioManager.asset.SND_Hurt);
+        else AudioManager.PlaySound(AudioManager.asset.SND_Damaged, .25f);
+
         if (hp <= 0)
         {
             Die(Caster);
@@ -410,6 +420,31 @@ public class Entity : MonoBehaviour
         Game.DisplayTP(TP);
     }
 
+    // just adds plr hp
+    // --> Updates the displayHP additionalyl!!
+    public void AddHP(float addHP)
+    {
+        hp = Math.Max(hp + addHP, 0);
+        Default["HP"] = Math.Max(hp, Default["HP"]);
+
+        if (HealthBar == null) { return; }
+        Game.DisplayHP(HealthBar, hp, Default["HP"]);
+    }
+
+    // sets the hp and tp (should only be used when loading data)
+    public void SetHP(float newHP)
+    {
+        hp = newHP;
+
+        if (HealthBar == null) { return; }
+        Game.DisplayHP(HealthBar, hp, Default["HP"]);
+    }
+    public void SetTP(float newTP)
+    {
+        TP = newTP;
+        Game.DisplayTP(TP);
+    }
+
     // Heals the entity by the current HP (as long as its not dead)
     // If the entity is linked to a display, update the display to the entity's current HP
     // --> excuse me why is negative healing viable
@@ -418,6 +453,7 @@ public class Entity : MonoBehaviour
     {
         if (hp <= 0) { return; } // Return if the entity is dead
 
+        AudioManager.PlaySound(AudioManager.asset.SND_Heal);
         hp = Mathf.Clamp(hp + heal, 0, Default["HP"]);
 
         if (HealthBar != null)

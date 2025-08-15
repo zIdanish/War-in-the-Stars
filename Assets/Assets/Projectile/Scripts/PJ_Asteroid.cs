@@ -26,6 +26,8 @@ public class PJ_Asteroid : Projectile
         yield return new WaitForSeconds(WARN);
 
         sprite.enabled = true;
+
+        AudioManager.PlaySound(AudioManager.asset.SND_Asteroid);
         SetPosition(new Vector2(Position.x, _settings.Height + 20));
         MoveTo(new Vector2(Position.x, -(_settings.Height + 20)));
 
@@ -44,5 +46,6 @@ public class PJ_Asteroid : Projectile
         // Deals damage to the entity
         if (entity.Invulnerable) { return; }
         entity.Damage(DMG, Caster);
+        ImpactFX(entity.Position);
     }
 }

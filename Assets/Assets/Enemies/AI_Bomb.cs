@@ -27,6 +27,7 @@ public class AI_Bomb : AI
     private IEnumerator Explode(Entity? Attacker) // Behaviour when attacking the player
     {
         if (Attacker == null) { yield break; }
+        AudioManager.PlaySound(AudioManager.asset.SND_Explode);
 
         for (int angle = 0; angle < 90; angle += 30)
         {

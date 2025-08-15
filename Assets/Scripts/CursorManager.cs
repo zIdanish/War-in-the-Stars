@@ -8,6 +8,7 @@ using UnityEngine.UIElements;
 /// Custom cursor class
 /// Contains inputs that affect the cursor such as Move, Click, Shift
 /// Attach this to the cursor
+/// Custom cursor is used since it's easier to make the entity move relative to the cursor that way
 /// </summary>
 public class Cursor : MonoBehaviour
 {
@@ -18,6 +19,7 @@ public class Cursor : MonoBehaviour
     public bool Shifted { get { return Shift.IsPressed(); } } // Boolean for precise cursor movement (LShift)
     public Vector2 Delta { get { return delta; } } // Cursor Movement delta
     public Transform? Follow; // Set the transform to the player entity
+    private RectTransform PauseButton = null!;
     /*<-----------------Misc---------------->*/
     private SpriteRenderer Sprite = null!; // Cursor sprite
     private GameManager Game = null!; // GameManager
@@ -38,21 +40,24 @@ public class Cursor : MonoBehaviour
         Move.Enable(); Click.Enable(); Shift.Enable();
         Click.performed += OnClick;
         Click.canceled += OnRelease;
+        HideDefaultCursor();
     }
     private void OnDisable()
     {
         Move.Disable(); Click.Disable(); Shift.Disable();
         Click.performed -= OnClick;
-        Click.canceled += OnRelease;
+        Click.canceled -= OnRelease;
+        ShowDefaultCursor();
     }
     private void Update()
     {
         MoveCursor();
     }
-    private void Start()
+    private void Awake()
     {
         Sprite = GetComponent<SpriteRenderer>();
         Game = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameManager>();
+        PauseButton = GameObject.FindGameObjectWithTag("PauseButton").GetComponent<RectTransform>();
     }
 
     /*<------------Update Functions----------->*/
@@ -78,20 +83,26 @@ public class Cursor : MonoBehaviour
         }
     }
 
-    /*<------------Private Functions----------->*/
+    /*<------------Cursor Functions----------->*/
     // Called when the player clicks
+    private void OnClick(InputAction.CallbackContext context)
+    {
+        BindToEntity();
+        CheckPause();
+    }
+
     // Checks if the player entity transform exists, is within the boundaries and the game isn't paused
     // And if yes, set the cursor position to the player position
     // Additionally set the cursor ZIndex to below the player so you can see the hitbox
-    private void OnClick(InputAction.CallbackContext context)
+    private void BindToEntity()
     {
         if (
-            Follow == null || 
-            Game.Paused || 
-            MathF.Abs(position.x) > _settings.Boundaries.x || 
-            MathF.Abs(position.y) > _settings.Boundaries.y) 
+            Follow == null ||
+            Game.Paused ||
+            MathF.Abs(position.x) > _settings.Boundaries.x ||
+            MathF.Abs(position.y) > _settings.Boundaries.y)
         {
-            return; 
+            return;
         }
         position = (Vector2)Follow.position;
         transform.position = position;
@@ -99,6 +110,15 @@ public class Cursor : MonoBehaviour
         // Bound
         Bounded = true;
         Sprite.sortingOrder = _settings.zPlayer - 1;
+    }
+    // Checks if the cursor is clicking on the pause button
+    // Breaks the function if not within range of the pause button
+    // Cause the player will be using the custom cursor instead of the player cursor for the pause menu
+    private void CheckPause()
+    {
+        var dist = ((Vector2)PauseButton.position - position).magnitude;
+        if (dist > 5) { return; }
+        GameButtons.Pause();
     }
     
     // Called when the player releases the click
@@ -108,5 +128,29 @@ public class Cursor : MonoBehaviour
         // Unbound
         Bounded = false;
         Sprite.sortingOrder = 999;
+    }
+    // Hide the default windows cursor
+    // So it uses the custom cursor in game
+    private void HideDefaultCursor()
+    {
+        UnityEngine.Cursor.visible = false;
+        UnityEngine.Cursor.lockState = CursorLockMode.Confined;
+
+        Sprite.enabled = true; // Show Custom Cursor
+
+        // Clamp the cursor within game boundaries
+        position = new Vector2(
+            Math.Clamp(position.x, -_settings.Boundaries.x, _settings.Boundaries.x),
+            Math.Clamp(position.y, -_settings.Boundaries.y, _settings.Boundaries.y)
+        );
+    }
+
+    // Show back the default windows cursor for menus and such
+    private void ShowDefaultCursor()
+    {
+        UnityEngine.Cursor.visible = true;
+        UnityEngine.Cursor.lockState = CursorLockMode.None;
+
+        Sprite.enabled = false;// Hide Custom Cursor
     }
 }

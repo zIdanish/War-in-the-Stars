@@ -133,7 +133,7 @@ public class AI_GoonBoss : AI
         }
 
         // choice
-        if (Random(25)) // 25% Chance to do a lunge instantly from that position
+        if (RandomChance(25)) // 25% Chance to do a lunge instantly from that position
         {
             undo();
             yield return Call(Lunge(1.5f, 50, 1));

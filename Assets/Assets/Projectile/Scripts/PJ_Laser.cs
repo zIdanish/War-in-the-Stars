@@ -17,10 +17,10 @@ public class PJ_Laser : Projectile
     public float DURATION = 1f; // Laser lifetime
     public float? COOLDOWN = null;
     public float SIZE = 10f;
+    public bool HAD_CASTER = false; // Becomes true if caster is real
     /*<------------------------------------->*/
     private Dictionary<Entity, bool> collided = new Dictionary<Entity, bool>();
     private Dictionary<Entity, float> hit = new Dictionary<Entity, float>();
-    private SpriteRenderer sprite = null!;
     private GameObject? warn;
     protected override void Start()
     {
@@ -28,12 +28,10 @@ public class PJ_Laser : Projectile
         GetComponent<Collider2D>().enabled = false;
         DISABLE_DELETE = true;
         DISABLE_MOVE = true;
+        BG = true;
         VALUE = DMG;
         SPD = 0; // default SPD to 0
-        
-        // init sprites
-        sprite = GetComponent<SpriteRenderer>();
-        sprite.sortingOrder = _settings.zBgProjectile;
+        HAD_CASTER = Caster != null;
 
         // start coroutine
         base.Start();
@@ -96,6 +94,7 @@ public class PJ_Laser : Projectile
         hit[entity] += (float)(COOLDOWN!=null ? COOLDOWN : 1);
 
         entity.Damage(DMG, Caster);
+        ImpactFX(entity.Position);
         if (entity.IsDestroyed())
         {
             hit.Remove(entity);
@@ -131,18 +130,19 @@ public class PJ_Laser : Projectile
     }
     private IEnumerator Warn(float duration)
     {
-        if (Caster != null && Caster.IsDestroyed()) { yield break; }
+        if (Caster == null && HAD_CASTER) { yield break; }
         warn = Game.Warn(duration, SIZE, transform);
 
         while (!warn.IsDestroyed()) { yield return null; }
     }
     private IEnumerator Laser(float duration)
     {
-        if (Caster != null && Caster.IsDestroyed()) { yield break; }
+        if (Caster == null && HAD_CASTER) { yield break; }
         transform.localScale = new Vector3(SIZE, 10, SIZE);
         Laser Component = GetComponent<Laser>();
         Component.Begin(duration);
 
+        AudioManager.PlaySound(AudioManager.asset.SND_Laser);
         float transition = Mathf.Min(.25f, duration / 2);
 
         yield return new WaitForSeconds(transition / 2);

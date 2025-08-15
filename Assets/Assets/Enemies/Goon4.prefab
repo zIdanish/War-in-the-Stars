@@ -101,7 +101,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b8ea7b50268bb3443b5cfc2697855ab0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Cooldown: 0.25
-  ProjectileSpeed: 20
+  Cooldown: 0.5
+  ProjectileSpeed: 12
   Lifetime: 2
   Projectile: {fileID: 1266743236956514637, guid: 31f30408000e04f4bbbb269bb8849755, type: 3}

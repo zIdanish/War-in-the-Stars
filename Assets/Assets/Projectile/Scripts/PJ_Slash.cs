@@ -40,7 +40,7 @@ public class PJ_Slash : Projectile
         // Deals damage to the entity
         if (entity.Invulnerable) { return; }
         DMG = entity.Damage(DMG, Caster);
-
+        ImpactFX(entity.Position);
 
     }
 }

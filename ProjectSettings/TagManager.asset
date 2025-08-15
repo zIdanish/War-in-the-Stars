@@ -11,6 +11,9 @@ TagManager:
   - Entities
   - UI
   - Score
+  - PauseScreen
+  - PauseButton
+  - Page
   layers:
   - Default
   - TransparentFX

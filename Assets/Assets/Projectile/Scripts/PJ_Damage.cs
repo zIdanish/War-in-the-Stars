@@ -25,6 +25,7 @@ public class PJ_Damage : Projectile
         // Deals damage to the entity
         if (entity.Invulnerable) { return; }
         DMG = entity.Damage(DMG, Caster);
+        ImpactFX(Position);
 
         // Destroy this object if no damage is left
         if (DMG > 0) { return; }

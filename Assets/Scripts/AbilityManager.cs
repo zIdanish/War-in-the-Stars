@@ -87,8 +87,12 @@ public class Ability : MonoBehaviour
         while (
             !input.IsPressed() || 
             (TP!=null && entity.TP < TP)
-        ) { yield return null; }
+        ) {
+            if (input.IsPressed()) AudioManager.PlaySound(AudioManager.asset.SND_Error);
+            yield return null; 
+        }
 
+        AudioManager.PlaySound(AudioManager.asset.SND_Ability);
         if (TP != null)
         {
             entity.UseTP((float)TP);
@@ -141,6 +145,7 @@ public class Ability : MonoBehaviour
     }
 
     // Returns true or false depending on the chance value
+    // --> typing Random.Range() all the time is tough so i opted for this instead
     public bool Random(float chance)
     {
         return UnityEngine.Random.Range(0f, 100f) < chance;

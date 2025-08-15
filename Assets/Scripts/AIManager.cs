@@ -70,13 +70,13 @@ public class AI : MonoBehaviour
     // Selects a random coroutine in the arguments to activate
     public Coroutine RandomTask(params IEnumerator[] tasks)
     {
-        return StartCoroutine(tasks[UnityEngine.Random.Range(0, tasks.Length)]);
+        return StartCoroutine(tasks[Random.Range(0, tasks.Length)]);
     }
 
     // Returns true or false depending on the chance value
-    public bool Random(float chance)
+    public bool RandomChance(float chance)
     {
-        return UnityEngine.Random.Range(0f, 100f)<chance;
+        return Random.Range(0f, 100f)<chance;
     }
 
     // proxy for safely calling coroutines

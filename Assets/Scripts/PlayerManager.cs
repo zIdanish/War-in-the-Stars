@@ -15,8 +15,8 @@ public class Player : MonoBehaviour
     /* Abilities */
     public Ability?[] Abilities = { null, null, null, null };
     /* Init Variables */
-    private InputAction Pause = new InputAction();
-    private Cursor Cursor = null!;
+    private InputAction Pause = null!;
+    [NonSerialized] public Cursor Cursor = null!;
     private Entity Entity = null!;
     private GameManager Game = null!;
 
@@ -28,8 +28,9 @@ public class Player : MonoBehaviour
 
         Game = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameManager>();
 
+        Pause = new InputAction();
         Pause.AddBinding("<Keyboard>/escape");
-        Pause.performed += ctx => Game.Pause();
+        Pause.performed += ctx => GameButtons.TogglePause();
 
         Cursor = GameObject.FindGameObjectWithTag("Cursor").GetComponent<Cursor>();
         Entity = gameObject.GetComponent<Entity>();
@@ -76,6 +77,6 @@ public class Player : MonoBehaviour
     }
     private void OnDestroy()
     {
-        Game.End();
+        Game.End(null);
     }
 }
